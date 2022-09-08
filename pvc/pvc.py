@@ -12,6 +12,10 @@ import logging
 RequestType = Literal["discord_deleted_user", "owner", "user", "user_strict"]
 
 
+from functools import partial
+hybrid_command = partial(commands.hybrid_command, with_app_command=True)
+hybrid_group = partial(commands.hybrid_group, with_app_command=True)
+
 class pvc(commands.Cog):
     """
     Private voice channel cog
@@ -80,7 +84,7 @@ class pvc(commands.Cog):
         # TODO: Replace this with the proper end user data removal handling.
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
-    @commands.group(name="vc")
+    @hybrid_group()
     async def vc(self, ctx: commands.Context):
         """
         Base command for all private voice channel commands
