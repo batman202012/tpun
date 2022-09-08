@@ -133,7 +133,7 @@ class pvc(commands.Cog):
             await ctx.send("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
     @vc.subcommand(name='delete')
-    async def delete(self, ctx: interactions.CommandContext, *, reason: str=""None""):
+    async def delete(self, ctx: interactions.CommandContext, *, reason: str=""):
         """
         Deletes your personal channel
 
