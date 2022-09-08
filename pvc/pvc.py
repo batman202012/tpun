@@ -110,7 +110,7 @@ class pvc(commands.Cog):
                     run = False
             vc = await self.vcOwnerRead(guild, interaction.author.id)
             if vc:
-                await interaction.send("{0} You already have a vc created named {1}".format(interaction.author.name, str(vc.name)), ephemeral=True)
+                await interaction.response.send_message("{0} You already have a vc created named {1}".format(interaction.author.name, str(vc.name)), ephemeral=True)
                 run = False
             if run:
                 channel = await guild.create_voice_channel(vcName, category=category)
