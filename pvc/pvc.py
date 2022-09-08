@@ -5,6 +5,7 @@ from redbot.core.utils.menus import start_adding_reactions
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
+import interactions
 import discord
 import asyncio
 import datetime
@@ -81,14 +82,14 @@ class pvc(commands.Cog):
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
     @commands.group(name='vc')
-    async def vc(self, ctx: commands.Context):
+    async def vc(self, ctx: interactions.Context):
         """
         Base command for all private voice channel commands
         """
         pass
 
     @vc.command(name='create')
-    async def create(self, ctx: commands.Context, *, vcName):
+    async def create(self, ctx: interactions.Context, vcName: str = ""):
         """
         Creates a voice channel with <name>
 
@@ -102,15 +103,15 @@ class pvc(commands.Cog):
             category = ctx.channel.category
             run: bool = True
             if vcName == "":
-                await ctx.send("{0} You need to type a voice channel name {1}vc create <Name>".format(ctx.author.name, ctx.prefix))
+                await ctx.send("{0} You need to type a voice channel name {1}vc create <Name>".format(ctx.author.name, ctx.prefix), ephemeral=True)
             else:
                 owner = ctx.author.id
                 if vcName == "no activity":
-                    await ctx.send("You can't create a game vc if you're not playing a game.")
+                    await ctx.send("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
             vc = await self.vcOwnerRead(guild, ctx.author.id)
             if vc:
-                await ctx.send("{0} You already have a vc created named {1}".format(ctx.author.name, str(vc.name)))
+                await ctx.send("{0} You already have a vc created named {1}".format(ctx.author.name, str(vc.name)), ephemeral=True)
                 run = False
             if run:
                 channel = await guild.create_voice_channel(vcName, category=category)
@@ -128,7 +129,7 @@ class pvc(commands.Cog):
                 pvc.futureList[str(vcId)] = empty
                 asyncio.ensure_future(self.checks(vcId, empty, ctx))
         else:
-            await ctx.send("This command only works in the custom vc {0} channel.".format(dsChannel.mention))
+            await ctx.send("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
     @vc.command(name='delete')
     async def delete(self, ctx: commands.Context, *, reason=None):
