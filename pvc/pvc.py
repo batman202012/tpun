@@ -131,7 +131,7 @@ class pvc(commands.Cog):
             await ctx.send("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
     @vc.command(name='delete')
-    async def delete(self, ctx: commands.Context, *, reason: str=""None""):
+    async def delete(self, ctx: commands.Context, *, reason: str=""):
         """
         Deletes your personal channel
 
@@ -148,7 +148,7 @@ class pvc(commands.Cog):
                     pvc.futureList.pop(str(vcId), None)
                     break
             channel = self.bot.get_channel(vcId)
-            if len(channel.members) == 0 and reason is None:
+            if len(channel.members) == 0 and reason == "":
                 reason = "channel is empty"
             elif reason is None:
                 reason = "user deleted their own channel"
