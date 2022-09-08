@@ -88,7 +88,7 @@ class pvc(commands.Cog):
         pass
 
     @vc.command(name='create')
-    async def create(self, ctx: commands.Context, vcName: str=""):
+    async def create(self, ctx: discord.Interaction, vcName: str=""):
         """
         Creates a voice channel with <name>
 
@@ -102,11 +102,11 @@ class pvc(commands.Cog):
             category = ctx.channel.category
             run: bool = True
             if vcName == "":
-                await ctx.send("{0} You need to type a voice channel name {1}vc create <Name>".format(ctx.author.name, ctx.prefix), ephemeral=True)
+                await ctx.response.send_message("{0} You need to type a voice channel name {1}vc create <Name>".format(ctx.author.name, ctx.prefix), ephemeral=True)
             else:
                 owner = ctx.author.id
                 if vcName == "no activity":
-                    await ctx.send("You can't create a game vc if you're not playing a game.", ephemeral=True)
+                    await ctx.response.send_message("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
             vc = await self.vcOwnerRead(guild, ctx.author.id)
             if vc:
@@ -123,7 +123,7 @@ class pvc(commands.Cog):
                 nC = {owner: vcId}
                 owners.update(nC)
                 await self.config.guild(guild).owners.set(owners)
-                await ctx.send("{0} was created by {1}".format(channel.mention, ctx.author.name))
+                await ctx.response.send_message("{0} was created by {1}".format(channel.mention, ctx.author.name))
                 empty = asyncio.Future()
                 pvc.futureList[str(vcId)] = empty
                 asyncio.ensure_future(self.checks(vcId, empty, ctx))
