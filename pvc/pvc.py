@@ -30,6 +30,7 @@ class pvc(commands.Cog):
             "roles": []
         }
         self.config.register_guild(**default_guild)
+        super().__init__()
         
     futureList: Dict = {}
 
