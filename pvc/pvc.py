@@ -392,10 +392,11 @@ class pvc(commands.Cog):
         """
         owner: int = 0
         newOwner = str(interaction.user.id)
+        isInVoice = interaction.user.voice
         channelid = interaction.user.voice.channel.id
         newWrite = {newOwner: channelid}
         guild = interaction.guild
-        if channelid is not None:
+        if isInVoice is not None:
             x = await self.config.guild(guild).owners()
             for vcOwnList, vcNameList in x.items():
                 if int(vcNameList) == int(channelid):
