@@ -86,7 +86,7 @@ class pvc(commands.Cog):
     vc = discord.app_commands.Group(name="vc", description="Base command for all private voice channel commands")
 
     @vc.command(name='create')
-    async def create(self, interaction: discord.Interaction, vcName: str="") -> None:
+    async def create(self, interaction: discord.Interaction, vcname: str="") -> None:
         """
         Creates a voice channel with <name>
 
@@ -99,11 +99,11 @@ class pvc(commands.Cog):
         if interaction.message.channel.id == dsChannel.id:
             category = interaction.channel.category
             run: bool = True
-            if vcName == "":
+            if vcname == "":
                 await interaction.response.send_message("{0} You need to type a voice channel name /vc create <Name>".format(interaction.user.name), ephemeral=True)
             else:
                 owner = interaction.user.id
-                if vcName == "no activity":
+                if vcname == "no activity":
                     await interaction.response.send_message("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
             vc = await self.vcOwnerRead(guild, interaction.user.id)
@@ -111,7 +111,7 @@ class pvc(commands.Cog):
                 await interaction.response.send_message("{0} You already have a vc created named {1}".format(interaction.user.id, str(vc.name)), ephemeral=True)
                 run = False
             if run:
-                channel = await guild.create_voice_channel(vcName, category=category)
+                channel = await guild.create_voice_channel(vcname, category=category)
                 await channel.set_permissions(interaction.user, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                 for role in roleList:
                     await channel.set_permissions(guild.get_role(role), view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
@@ -411,26 +411,26 @@ class pvc(commands.Cog):
             await self.config.guild(guild).owners.set(x)
 
     @vc.command(name="transfer")
-    async def transfer(self, interaction: discord.Interaction, newOwner: discord.Member) -> None:
+    async def transfer(self, interaction: discord.Interaction, newowner: discord.Member) -> None:
         """
         Transfers a voice channel to another user
         """
         owner = str(interaction.user.id)
         if interaction.user.voice is not None:
             channelid = interaction.user.voice.channel.id
-            newWrite = {str(newOwner.id): int(channelid)}
+            newWrite = {str(newowner.id): int(channelid)}
             guild = interaction.guild
             if channelid is not None:
                 x = await self.config.guild(guild).owners()
                 vcObj = await self.vcOwnerRead(guild, interaction.user.id)
                 ownerObj = await self.bot.get_or_fetch_member(guild, interaction.user.id)
                 if vcObj is not None and vcObj.id == channelid:
-                    if ownerObj.voice.channel.id == channelid and str(newOwner.id) not in x.keys():
+                    if ownerObj.voice.channel.id == channelid and str(newowner.id) not in x.keys():
                         await interaction.response.send_message("{0} has transfered vc ownership to {1}".format(interaction.user.mention, vcObj.mention))
                         x.pop(str(owner), None)
                         x.update(newWrite)
-                    elif str(newOwner.id) in x.keys():
-                        await interaction.response.send_message("{0} already owns a vc".format(newOwner.display_name), ephemeral=True)
+                    elif str(newowner.id) in x.keys():
+                        await interaction.response.send_message("{0} already owns a vc".format(newowner.display_name), ephemeral=True)
                     else:
                         await interaction.response.send_message("<@{0}> you must be in your vc to run this command".format(interaction.user.id), ephemeral=True)
                 else:
