@@ -33,7 +33,6 @@ class pvc(commands.Cog):
         }
         self.config.register_guild(**default_guild)
         super().__init__()
-        bot.tree.add_command(self.vc)
         
     futureList: Dict = {}
 
@@ -471,6 +470,7 @@ class pvc(commands.Cog):
 
     @commands.command(name="vcsync")
     async def vcsync(self, ctx: commands.Context):
+        self.bot.tree.add_command(self.vc)
         commands = [c.name for c in self.bot.tree.get_commands()]
         self.log.info("registered commands: %s", ", ".join(commands))
         self.log.info("syncing commands...")
