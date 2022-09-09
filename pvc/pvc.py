@@ -1,4 +1,5 @@
 from ast import Dict
+from distutils.cmd import Command
 from typing import Literal
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
@@ -438,16 +439,16 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @pvc.command(name="setup")
-    async def setup(self, interaction: discord.Interaction) -> None:
+    @commands.command(name="setup")
+    async def setup(self, ctx: commands.Context):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
         """
-        guild = interaction.guild
-        channel = await interaction.guild.create_text_channel("personal-vc-commands")
-        mess0 = await interaction.response.send_message("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.", ephemeral=True)
+        guild = ctx.guild
+        channel = await ctx.guild.create_text_channel("personal-vc-commands")
+        mess0 = await ctx.send("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.")
         await self.config.guild(guild).channel.set(channel.id)
-        mess1 = await interaction.response.send_message("Please ping any roles you wish to have permissions to join channels on creation. These roles will also be used for unlock/lock commands. If you wish to allow anyone to join on creation type 'none'.")
+        mess1 = await ctx.send("Please ping any roles you wish to have permissions to join channels on creation. These roles will also be used for unlock/lock commands. If you wish to allow anyone to join on creation type 'none'.")
 
         def check(m):
             return m.channel == mess1.channel
@@ -458,10 +459,15 @@ class pvc(commands.Cog):
             for i in msg.role_mentions:
                 roles.append(i.id)
         else:
-            roles.append(interaction.guild.id)
+            roles.append(ctx.guild.id)
         await mess1.delete()
         await self.config.guild(guild).roles.set(roles)
-        mess2 = await interaction.response.send_message("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles))
+        mess2 = await ctx.send("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles))
         await asyncio.sleep(30)
         await mess0.delete()
         await mess2.delete()
+        self.bot.tree.add_command(pvc, guild=discord.Object(id=ctx.guild.id))
+        commands = [c.name for c in self.bot.tree.get_commands(guild=guild)]
+        self.log.info("registered commands: %s", ", ".join(commands))
+        self.log.info("syncing commands...")
+        await self.bot.tree.sync(guild=ctx.guild)
