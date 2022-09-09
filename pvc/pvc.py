@@ -20,7 +20,8 @@ class pvc(commands.Cog):
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
-        self.log = logging.getLogger('red.tpun.pvc')
+        log = logging.getLogger('red.tpun.pvc')
+        self.log = log
         self.config = Config.get_conf(
             self,
             identifier=365398642334498816
@@ -32,6 +33,11 @@ class pvc(commands.Cog):
         }
         self.config.register_guild(**default_guild)
         super().__init__()
+        bot.tree.add_command(self.vc)
+        commands = [c.name for c in self.bot.tree.get_commands()]
+        log.info("registered commands: %s", ", ".join(commands))
+        log.info("syncing commands...")
+        bot.tree.sync(None)
         
     futureList: Dict = {}
 
@@ -100,7 +106,7 @@ class pvc(commands.Cog):
             category = interaction.channel.category
             run: bool = True
             if vcname == "":
-                await interaction.response.send_message("{0} You need to type a voice channel name /vc create <Name>".format(interaction.user.name), ephemeral=True)
+                await interaction.response.send_message("You need to type a voice channel name /vc create <Name>", ephemeral=True)
             else:
                 owner = interaction.user.id
                 if vcname == "no activity":
@@ -108,7 +114,7 @@ class pvc(commands.Cog):
                     run = False
             vc = await self.vcOwnerRead(guild, interaction.user.id)
             if vc:
-                await interaction.response.send_message("{0} You already have a vc created named {1}".format(interaction.user.id, str(vc.name)), ephemeral=True)
+                await interaction.response.send_message("You already have a vc created named {1}".format(str(vc.name)), ephemeral=True)
                 run = False
             if run:
                 channel = await guild.create_voice_channel(vcname, category=category)
@@ -463,11 +469,6 @@ class pvc(commands.Cog):
         await mess1.delete()
         await self.config.guild(guild).roles.set(roles)
         mess2 = await ctx.send("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles))
-        self.bot.tree.add_command(self.vc, guild=discord.Object(id=ctx.guild.id))
-        commands = [c.name for c in self.bot.tree.get_commands(guild=guild)]
-        self.log.info("registered commands: %s", ", ".join(commands))
-        self.log.info("syncing commands...")
-        await self.bot.tree.sync(guild=ctx.guild)
         await asyncio.sleep(30)
         await mess0.delete()
         await mess2.delete()
