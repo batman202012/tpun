@@ -475,3 +475,4 @@ class pvc(commands.Cog):
         self.log.info("registered commands: %s", ", ".join(commands))
         self.log.info("syncing commands...")
         await self.bot.tree.sync()
+        await ctx.send("VC Commands were synced")
