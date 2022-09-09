@@ -436,7 +436,6 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @commands.guildowner_or_permissions()
     @discord.app_commands.command(name="setup")
     async def setup(self, interaction: discord.Interaction) -> None:
         """
