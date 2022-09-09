@@ -411,6 +411,8 @@ class pvc(commands.Cog):
                     else:
                         await interaction.response.send_message("<@{0}> is still in their vc you can only run this when they have left".format(owner), ephemeral=True)
             await self.config.guild(guild).owners.set(x)
+        else:
+            await interaction.response.send_message("You can't claim a voice channel if you aren't in one", ephemeral=True)
 
     @vc.command(name="transfer")
     async def transfer(self, interaction: discord.Interaction, newowner: discord.Member) -> None:
