@@ -96,7 +96,7 @@ class pvc(commands.Cog):
         roleList = await self.vcRoleRead(interaction)
         guild = interaction.guild
         owners = await self.config.guild(guild).owners()
-        if interaction.message.channel.id == dsChannel.id:
+        if interaction.channel.id == dsChannel.id:
             category = interaction.channel.category
             run: bool = True
             if vcname == "":
