@@ -442,7 +442,7 @@ class pvc(commands.Cog):
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
     @commands.command(name="vsetup")
-    async def setup(self, ctx: commands.Context):
+    async def vsetup(self, ctx: commands.Context):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
         """
