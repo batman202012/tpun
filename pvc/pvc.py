@@ -12,11 +12,6 @@ import logging
 RequestType = Literal["discord_deleted_user", "owner", "user", "user_strict"]
 
 
-setattr(commands, "Literal", Literal)
-from functools import partial
-hybrid_command = partial(commands.hybrid_command, with_app_command=True)
-hybrid_group = partial(commands.hybrid_group, with_app_command=True)
-
 class pvc(commands.Cog):
     """
     Private voice channel cog
@@ -85,55 +80,50 @@ class pvc(commands.Cog):
         # TODO: Replace this with the proper end user data removal handling.
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
-    @hybrid_group()
-    async def vc(self, ctx: commands.Context):
-        """
-        Base command for all private voice channel commands
-        """
-        pass
+    pvc = discord.app_commands.Group(name="vc", description="Base command for all private voice channel commands")
 
-    @vc.command(name='create')
-    async def create(self, ctx: commands.Context, vcName: str=""):
+    @discord.app_commands.command(name='create')
+    async def create(self, interaction: discord.Interaction, vcName: str="") -> None:
         """
         Creates a voice channel with <name>
 
         You can only have 1 vc. VC deletes after 1 minute of inactivity. You must join your vc within 1 minute or it will be deleted.
         """
-        dsChannel = await self.vcChannelRead(ctx)
-        roleList = await self.vcRoleRead(ctx)
-        guild = ctx.guild
+        dsChannel = await self.vcChannelRead(interaction)
+        roleList = await self.vcRoleRead(interaction)
+        guild = interaction.guild
         owners = await self.config.guild(guild).owners()
-        if ctx.message.channel.id == dsChannel.id:
-            category = ctx.channel.category
+        if interaction.message.channel.id == dsChannel.id:
+            category = interaction.channel.category
             run: bool = True
             if vcName == "":
-                await ctx.response.send_message("{0} You need to type a voice channel name {1}vc create <Name>".format(ctx.author.name, ctx.prefix), ephemeral=True)
+                await interaction.response.send_message("{0} You need to type a voice channel name /vc create <Name>".format(interaction.user.name), ephemeral=True)
             else:
-                owner = ctx.author.id
+                owner = interaction.user.id
                 if vcName == "no activity":
-                    await ctx.response.send_message("You can't create a game vc if you're not playing a game.", ephemeral=True)
+                    await interaction.response.send_message("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
-            vc = await self.vcOwnerRead(guild, ctx.author.id)
+            vc = await self.vcOwnerRead(guild, interaction.user.id)
             if vc:
-                await ctx.response.send_message("{0} You already have a vc created named {1}".format(ctx.author.name, str(vc.name)), ephemeral=True)
+                await interaction.response.send_message("{0} You already have a vc created named {1}".format(interaction.user.id, str(vc.name)), ephemeral=True)
                 run = False
             if run:
                 channel = await guild.create_voice_channel(vcName, category=category)
-                await channel.set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
+                await channel.set_permissions(interaction.user, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                 for role in roleList:
                     await channel.set_permissions(guild.get_role(role), view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
-                if ctx.author.voice is not None and ctx.author.voice.channel.id != channel.id and ctx.author.voice.channel is not None:
-                    await ctx.author.move_to(channel)
+                if interaction.user.voice is not None and interaction.user.voice.channel.id != channel.id and interaction.user.voice.channel is not None:
+                    await interaction.user.move_to(channel)
                 vcId = channel.id
                 nC = {owner: vcId}
                 owners.update(nC)
                 await self.config.guild(guild).owners.set(owners)
-                await ctx.response.send_message("{0} was created by {1}".format(channel.mention, ctx.author.name))
+                await interaction.response.send_message("{0} was created by {1}".format(channel.mention, interaction.author.name))
                 empty = asyncio.Future()
                 pvc.futureList[str(vcId)] = empty
-                asyncio.ensure_future(self.checks(vcId, empty, ctx))
+                asyncio.ensure_future(self.checks(vcId, empty, interaction))
         else:
-            await ctx.send("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
+            await interaction.response.send_message("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
     @vc.command(name='delete')
     async def delete(self, ctx: commands.Context, *, reason: str=""):
