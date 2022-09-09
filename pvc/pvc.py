@@ -470,6 +470,12 @@ class pvc(commands.Cog):
 
     @commands.command(name="vcsync")
     async def vcsync(self, ctx: commands.Context):
+        self.log.info("clearing commands...")
+        self.bot.tree.remove_command("vc")
+        await self.bot.tree.sync()
+
+        self.log.info("waiting to avoid rate limit...")
+        await asyncio.sleep(1)
         self.bot.tree.add_command(self.vc)
         commands = [c.name for c in self.bot.tree.get_commands()]
         self.log.info("registered commands: %s", ", ".join(commands))
