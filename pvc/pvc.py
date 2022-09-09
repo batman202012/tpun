@@ -441,8 +441,8 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @commands.command(name="vsetup")
-    async def vsetup(self, ctx: commands.Context):
+    @commands.command(name="vcsetup")
+    async def vcsetup(self, ctx: commands.Context):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
         """
@@ -469,8 +469,8 @@ class pvc(commands.Cog):
         await mess0.delete()
         await mess2.delete()
 
-    @commands.command(name="vsync")
-    async def vsync(self, ctx: commands.Context):
+    @commands.command(name="vcsync")
+    async def vcsync(self, ctx: commands.Context):
         commands = [c.name for c in self.bot.tree.get_commands()]
         self.log.info("registered commands: %s", ", ".join(commands))
         self.log.info("syncing commands...")
