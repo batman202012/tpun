@@ -10,6 +10,7 @@ with open(Path(__file__).parent / "info.json") as fp:
 
 
 async def setup(bot: Red) -> None:
+    bot.tree.remove_command("usergate")
     await bot.add_cog(usergate(bot))
     bot.tree.add_command(usergate.usergate)
     await bot.tree.sync()
