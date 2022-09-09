@@ -34,7 +34,7 @@ class usergate(commands.Cog):
         if time.mktime(member.created_at.timetuple()) > (time.mktime(datetime.datetime.now().timetuple()) - (userGate * 24 * 60 * 60)):
             await member.kick(reason="Account is under {0} days old".format(str(userGate)))
 
-    @discord.app_commands.Command(name="usergate", description="Usergate setup command")
+    @discord.app_commands.command(name="usergate", description="Usergate setup command")
     async def usergate(self, interaction: discord.Interaction, days: int) -> None:
         """
         Usergate setup command
