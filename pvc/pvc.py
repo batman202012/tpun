@@ -471,7 +471,7 @@ class pvc(commands.Cog):
     @commands.command(name="vcsync")
     async def vcsync(self, ctx: commands.Context):
         self.log.info("clearing commands...")
-        self.bot.tree.remove_command("vc", ctx.guild)
+        self.bot.tree.remove_command("vc")
         await self.bot.tree.sync(ctx.guild)
 
         self.log.info("waiting to avoid rate limit...")
