@@ -121,7 +121,7 @@ class pvc(commands.Cog):
                 nC = {owner: vcId}
                 owners.update(nC)
                 await self.config.guild(guild).owners.set(owners)
-                await interaction.response.send_message("{0} was created by {1}".format(channel.mention, interaction.author.name))
+                await interaction.response.send_message("{0} was created by {1}".format(channel.mention, interaction.user.name))
                 empty = asyncio.Future()
                 pvc.futureList[str(vcId)] = empty
                 asyncio.ensure_future(self.checks(vcId, empty, interaction))
