@@ -30,6 +30,7 @@ class pvc(commands.Cog):
             "roles": []
         }
         self.config.register_guild(**default_guild)
+        
     futureList: Dict = {}
 
     async def getVcList(self, guild):
@@ -82,7 +83,7 @@ class pvc(commands.Cog):
 
     pvc = discord.app_commands.Group(name="vc", description="Base command for all private voice channel commands")
 
-    @discord.app_commands.command(name='create')
+    @pvc.command(name='create')
     async def create(self, interaction: discord.Interaction, vcName: str="") -> None:
         """
         Creates a voice channel with <name>
@@ -125,7 +126,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
-    @discord.app_commands.command(name='delete')
+    @pvc.command(name='delete')
     async def delete(self, interaction: discord.Interaction, reason: str="") -> None:
         """
         Deletes your personal channel
@@ -155,7 +156,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You can't delete a VC if you don't have one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name='name')
+    @pvc.command(name='name')
     async def name(self, interaction: discord.Interaction) -> None:
         """
         Returns the name of your vc
@@ -166,7 +167,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name='list')
+    @pvc.command(name='list')
     async def list(self, interaction: discord.Interaction) -> None:
         """
         Lists all the owners of vc's
@@ -181,7 +182,7 @@ class pvc(commands.Cog):
             embed.add_field(name="🔊", value=message, inline=True)
         await interaction.response.send_message(embed=embed)
 
-    @discord.app_commands.command(name="rename")
+    @pvc.command(name="rename")
     async def rename(self, interaction: discord.Interaction, rename: str ="") -> None:
         """
         Renames your personal vc
@@ -215,7 +216,7 @@ class pvc(commands.Cog):
         if int in conditions.keys():
             return conditions[int]
 
-    @discord.app_commands.command(name="region")
+    @pvc.command(name="region")
     async def region(self, interaction: discord.Interaction, region: int) -> None:
         """
         Changes the region of your vc.
@@ -235,7 +236,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="lock")
+    @pvc.command(name="lock")
     async def lock(self, interaction: discord.Interaction) -> None:
         """
         Changes your vc to invite/request only.
@@ -251,7 +252,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="unlock")
+    @pvc.command(name="unlock")
     async def unlock(self, interaction: discord.Interaction) -> None:
         """
         Unlocks your vc
@@ -266,7 +267,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="invite")
+    @pvc.command(name="invite")
     async def invite(self, interaction: discord.Interaction, user: discord.Member) -> None:
         """
         Invites a user to your vc
@@ -283,7 +284,7 @@ class pvc(commands.Cog):
             else:
                 await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="limit")
+    @pvc.command(name="limit")
     async def limit(self, interaction: discord.Interaction, limit: int = 0):
         """
         Sets the limit for how many spots are in vc, use 0 to remove limit
@@ -295,7 +296,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="request")
+    @pvc.command(name="request")
     async def request(self, interaction: discord.Interaction, user: discord.Member) -> None:
         """
         Sends a user a request to join their vc, request last 5 minutes
@@ -327,7 +328,7 @@ class pvc(commands.Cog):
                     else:
                         pass
 
-    @discord.app_commands.command(name="kick")
+    @pvc.command(name="kick")
     async def kick(self, interaction: discord.Interaction, user: discord.Member) -> None:
         """
         Kicks a user from your vc
@@ -345,7 +346,7 @@ class pvc(commands.Cog):
             else:
                 await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="mute")
+    @pvc.command(name="mute")
     async def mute(self, interaction: discord.Interaction, user: discord.Member) -> None:
         """
         Mutes a user inside your vc
@@ -364,7 +365,7 @@ class pvc(commands.Cog):
             else:
                 await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="unmute")
+    @pvc.command(name="unmute")
     async def unmute(self, interaction: discord.Interaction, user: discord.Member) -> None:
         """
         Unmutes a user inside your vc
@@ -381,7 +382,7 @@ class pvc(commands.Cog):
             else:
                 await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(interaction.user.name), ephemeral=True)
 
-    @discord.app_commands.command(name="claim")
+    @pvc.command(name="claim")
     async def claim(self, interaction: discord.Interaction) -> None:
         """
         Claims a voice channel from another user if they're not in it.
@@ -407,7 +408,7 @@ class pvc(commands.Cog):
                         await interaction.response.send_message("<@{0}> is still in their vc you can only run this when they have left".format(owner), ephemeral=True)
             await self.config.guild(guild).owners.set(x)
 
-    @discord.app_commands.command(name="transfer")
+    @pvc.command(name="transfer")
     async def transfer(self, interaction: discord.Interaction, newOwner: discord.Member) -> None:
         """
         Transfers a voice channel to another user
@@ -436,7 +437,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @discord.app_commands.command(name="setup")
+    @pvc.command(name="setup")
     async def setup(self, interaction: discord.Interaction) -> None:
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
