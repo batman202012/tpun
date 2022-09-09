@@ -37,7 +37,7 @@ class pvc(commands.Cog):
         commands = [c.name for c in self.bot.tree.get_commands()]
         log.info("registered commands: %s", ", ".join(commands))
         log.info("syncing commands...")
-        bot.tree.sync(None)
+        bot.tree.sync()
         
     futureList: Dict = {}
 
