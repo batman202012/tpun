@@ -34,10 +34,6 @@ class pvc(commands.Cog):
         self.config.register_guild(**default_guild)
         super().__init__()
         bot.tree.add_command(self.vc)
-        commands = [c.name for c in self.bot.tree.get_commands()]
-        log.info("registered commands: %s", ", ".join(commands))
-        log.info("syncing commands...")
-        bot.tree.sync()
         
     futureList: Dict = {}
 
@@ -445,7 +441,7 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @commands.command(name="setup")
+    @commands.command(name="vsetup")
     async def setup(self, ctx: commands.Context):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
@@ -472,3 +468,10 @@ class pvc(commands.Cog):
         await asyncio.sleep(30)
         await mess0.delete()
         await mess2.delete()
+
+    @commands.command(name="vsync")
+    async def vsync(self, ctx: commands.Context):
+        commands = [c.name for c in self.bot.tree.get_commands()]
+        self.log.info("registered commands: %s", ", ".join(commands))
+        self.log.info("syncing commands...")
+        await self.bot.tree.sync()
