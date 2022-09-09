@@ -471,14 +471,14 @@ class pvc(commands.Cog):
     @commands.command(name="vcsync")
     async def vcsync(self, ctx: commands.Context):
         self.log.info("clearing commands...")
-        self.bot.tree.remove_command("vc")
-        await self.bot.tree.sync(ctx.guild)
+        self.bot.tree.remove_command("vc", guild=ctx.guild)
+        await self.bot.tree.sync(guild=ctx.guild)
 
         self.log.info("waiting to avoid rate limit...")
         await asyncio.sleep(1)
-        self.bot.tree.add_command(self.vc, ctx.guild)
-        commands = [c.name for c in self.bot.tree.get_commands()]
+        self.bot.tree.add_command(self.vc, guild=ctx.guild)
+        commands = [c.name for c in self.bot.tree.get_commands(guild=ctx.guild)]
         self.log.info("registered commands: %s", ", ".join(commands))
         self.log.info("syncing commands...")
-        await self.bot.tree.sync(ctx.guild)
+        await self.bot.tree.sync(guild=ctx.guild)
         await ctx.send("VC Commands were synced")
