@@ -464,13 +464,13 @@ class pvc(commands.Cog):
         await mess1.delete()
         await self.config.guild(guild).roles.set(roles)
         mess2 = await ctx.send("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles))
-        self.bot.tree.add_command(self.vc)
         await asyncio.sleep(30)
         await mess0.delete()
         await mess2.delete()
 
     @commands.command(name="vcsync")
     async def vcsync(self, ctx: commands.Context):
+        self.bot.tree.add_command(self.vc)
         commands = [c.name for c in self.bot.tree.get_commands()]
         self.log.info("registered commands: %s", ", ".join(commands))
         self.log.info("syncing commands...")
