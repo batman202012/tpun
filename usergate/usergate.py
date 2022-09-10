@@ -50,3 +50,11 @@ class usergate(commands.Cog):
         self.log.info("clearing commands...")
         self.bot.tree.remove_command("usergate", guild=ctx.guild)
         await self.bot.tree.sync(guild=ctx.guild)
+        self.log.info("waiting to avoid rate limit...")
+        await asyncio.sleep(1)
+        commands = [c.name for c in self.bot.tree.get_commands(guild=ctx.guild)]
+        self.log.info("registered commands: %s", ", ".join(commands))
+        self.log.info("syncing commands...")
+        self.bot.tree.add_command(self.usergate, guild=ctx.guild)
+        await self.bot.tree.sync(guild=ctx.guild)
+        await ctx.send("VC Commands were synced")
