@@ -94,7 +94,7 @@ class pvc(commands.Cog):
         pass
 
     @vc.command(name='create', with_app_command=True)
-    async def create(self, ctx: commands.Context, Name: str="") -> None:
+    async def create(self, ctx: commands.Context, name: str="") -> None:
         """
         Creates a voice channel with <name>
 
@@ -107,11 +107,11 @@ class pvc(commands.Cog):
         if ctx.channel.id == dsChannel.id:
             category = ctx.channel.category
             run: bool = True
-            if Name == "":
+            if name == "":
                 await ctx.reply("You need to type a voice channel name /vc create <Name>", ephemeral=True)
             else:
                 owner = ctx.author.id
-                if Name == "no activity":
+                if name == "no activity":
                     await ctx.reply("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
             vc = await self.vcOwnerRead(guild, ctx.author.id)
@@ -119,7 +119,7 @@ class pvc(commands.Cog):
                 await ctx.reply("You already have a vc created named {0}".format(str(vc.name)), ephemeral=True)
                 run = False
             if run:
-                channel = await guild.create_voice_channel(Name, category=category)
+                channel = await guild.create_voice_channel(name, category=category)
                 await channel.set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                 for role in roleList:
                     await channel.set_permissions(guild.get_role(role), view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
