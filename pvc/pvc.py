@@ -86,7 +86,7 @@ class pvc(commands.Cog):
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
     @commands.hybrid_group(name='vc', with_app_command=True)
-    @app_commands.guilds(id=985717471153647616)
+    @app_commands.guilds(985717471153647616)
     async def vc(self, ctx: commands.Context):
         """
         Base command for all private voice channel commands
@@ -94,7 +94,7 @@ class pvc(commands.Cog):
         pass
 
     @vc.command(name='create', with_app_command=True)
-    @app_commands.guilds(id=985717471153647616)
+    @app_commands.guilds(985717471153647616)
     async def create(self, ctx: commands.Context, vcname: str="") -> None:
         """
         Creates a voice channel with <name>
