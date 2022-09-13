@@ -480,4 +480,4 @@ class pvc(commands.Cog):
 
     @vc.command(name="sync", with_app_command=True)
     async def sync(self, ctx: commands.Context):
-        await self.bot.tree.sync(ctx.guild)
+        await self.bot.tree.sync()
