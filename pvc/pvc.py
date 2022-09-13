@@ -451,8 +451,8 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @vc.command(name="vcsetup", with_app_command=True)
-    async def vcsetup(self, ctx: commands.Context):
+    @vc.command(name="setup", with_app_command=True)
+    async def setup(self, ctx: commands.Context):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
         """
@@ -477,3 +477,7 @@ class pvc(commands.Cog):
         mess2 = await ctx.reply("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles), ephemeral=True)
         await asyncio.sleep(30)
         await mess0.delete()
+
+    @vc.command(name="sync", with_app_command=True)
+    async def sync(self, ctx: commands.Context):
+        await self.bot.tree.sync(ctx.guild)
