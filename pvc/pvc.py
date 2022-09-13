@@ -478,8 +478,8 @@ class pvc(commands.Cog):
         await asyncio.sleep(30)
         await mess0.delete()
 
-    @app_commands.context_menu(name="PVC Mute", type="user")
-    async def contextmute(self, interaction: discord.Interaction) -> None:
+    @app_commands.context_menu(name="PVC Mute")
+    async def contextmute(self, interaction: discord.Interaction,  user: discord.User) -> None:
         author = interaction.user
         self.log.info(interaction)
         if user is None:
