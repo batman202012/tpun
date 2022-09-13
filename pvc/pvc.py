@@ -84,7 +84,12 @@ class pvc(commands.Cog):
         # TODO: Replace this with the proper end user data removal handling.
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
-    vc = discord.app_commands.Group(name="vc", description="Base command for all private voice channel commands")
+    @commands.hybrid_group(name='vc')
+    async def vc(self, ctx: commands.Context):
+        """
+        Base command for all private voice channel commands
+        """
+        pass
 
     @vc.command(name='create')
     async def create(self, interaction: discord.Interaction, vcname: str="") -> None:
@@ -443,16 +448,16 @@ class pvc(commands.Cog):
         else:
             await interaction.response.send_message("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @commands.command(name="vcsetup")
-    async def vcsetup(self, ctx: commands.Context):
+    @vc.command(name="vcsetup")
+    async def vcsetup(self, interaction: discord.Interaction):
         """
         Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
         """
-        guild = ctx.guild
-        channel = await ctx.guild.create_text_channel("personal-vc-commands")
-        mess0 = await ctx.send("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.")
+        guild = interaction.guild
+        channel = await interaction.guild.create_text_channel("personal-vc-commands")
+        mess0 = await interaction.channel.send("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.")
         await self.config.guild(guild).channel.set(channel.id)
-        mess1 = await ctx.send("Please ping any roles you wish to have permissions to join channels on creation. These roles will also be used for unlock/lock commands. If you wish to allow anyone to join on creation type 'none'.")
+        mess1 = await interaction.channel.send("Please ping any roles you wish to have permissions to join channels on creation. These roles will also be used for unlock/lock commands. If you wish to allow anyone to join on creation type 'none'.")
 
         def check(m):
             return m.channel == mess1.channel
@@ -463,25 +468,9 @@ class pvc(commands.Cog):
             for i in msg.role_mentions:
                 roles.append(i.id)
         else:
-            roles.append(ctx.guild.id)
+            roles.append(interaction.guild.id)
         await mess1.delete()
         await self.config.guild(guild).roles.set(roles)
-        mess2 = await ctx.send("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles))
+        mess2 = await interaction.response.send_message("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles), ephemeral=True)
         await asyncio.sleep(30)
         await mess0.delete()
-        await mess2.delete()
-
-    @commands.command(name="vcsync")
-    async def vcsync(self, ctx: commands.Context):
-        self.log.info("clearing commands...")
-        self.bot.tree.remove_command("vc", guild=ctx.guild)
-        await self.bot.tree.sync(guild=ctx.guild)
-
-        self.log.info("waiting to avoid rate limit...")
-        await asyncio.sleep(1)
-        self.bot.tree.add_command(self.vc, guild=ctx.guild)
-        commands = [c.name for c in self.bot.tree.get_commands(guild=ctx.guild)]
-        self.log.info("registered commands: %s", ", ".join(commands))
-        self.log.info("syncing commands...")
-        await self.bot.tree.sync(guild=ctx.guild)
-        await ctx.send("VC Commands were synced")
