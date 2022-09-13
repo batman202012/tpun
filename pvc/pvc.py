@@ -93,7 +93,7 @@ class pvc(commands.Cog):
         pass
 
     @vc.command(name='create', with_app_command=True)
-    async def create(self, ctx: commands.Context, vcname: str="") -> None:
+    async def create(self, ctx: commands.Context, Name: str="") -> None:
         """
         Creates a voice channel with <name>
 
@@ -106,11 +106,11 @@ class pvc(commands.Cog):
         if ctx.channel.id == dsChannel.id:
             category = ctx.channel.category
             run: bool = True
-            if vcname == "":
+            if Name == "":
                 await ctx.reply("You need to type a voice channel name /vc create <Name>", ephemeral=True)
             else:
                 owner = ctx.author.id
-                if vcname == "no activity":
+                if Name == "no activity":
                     await ctx.reply("You can't create a game vc if you're not playing a game.", ephemeral=True)
                     run = False
             vc = await self.vcOwnerRead(guild, ctx.author.id)
@@ -118,7 +118,7 @@ class pvc(commands.Cog):
                 await ctx.reply("You already have a vc created named {0}".format(str(vc.name)), ephemeral=True)
                 run = False
             if run:
-                channel = await guild.create_voice_channel(vcname, category=category)
+                channel = await guild.create_voice_channel(Name, category=category)
                 await channel.set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                 for role in roleList:
                     await channel.set_permissions(guild.get_role(role), view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
@@ -355,7 +355,7 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="mute", with_app_command=True)
+    @vc.command(name="mute", with_app_command=True, type="user")
     async def mute(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Mutes a user inside your vc
@@ -478,6 +478,20 @@ class pvc(commands.Cog):
         await asyncio.sleep(30)
         await mess0.delete()
 
-    @vc.command(name="sync", with_app_command=True)
-    async def sync(self, ctx: commands.Context):
-        await self.bot.tree.sync(guild=ctx.guild)
+    @app_commands.command(name="PVC Mute", type="user", description="Mutes a user in your personal voice channel")
+    async def contextmute(self, interaction: discord.Interaction):
+        author = interaction.user
+        user = interaction.
+        if user is None:
+            await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
+        else:
+            voiceChannel = await self.vcOwnerRead(interaction.guild, author.id)
+            if voiceChannel is not None and user.voice is not None:
+                await voiceChannel.set_permissions(user, view_channel=True, read_messages=True, send_messages=False, read_message_history=True, use_voice_activation=True, stream=False, connect=True, speak=False, reason="{0} muted {1} in their vc: {2}".format(author.name, user.name, voiceChannel.name))
+                if user.voice.channel.id == voiceChannel.id:
+                    await user.move_to(voiceChannel)
+                await interaction.response.send_message("{0} was muted in your vc: {1}".format(user.name, voiceChannel.mention))
+            elif user.voice is None:
+                await interaction.response.send_message("You can't mute someone who isn't in a vc.", ephemeral=True)
+            else:
+                await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(author.name), ephemeral=True)
