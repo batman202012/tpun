@@ -14,7 +14,7 @@ with open(Path(__file__).parent / "info.json") as fp:
 async def setup(bot: Red) -> None:
     await bot.add_cog(pvc(bot))
 
-    async def vcOwnerRead(self, guild, owner):
+    async def vcOwnerRead(guild, owner):
         i = await pvc(bot).config.guild(guild).owners()
         for vcOwner, vcId in i.items():
             if vcOwner == str(owner):
