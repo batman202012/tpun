@@ -453,7 +453,9 @@ class pvc(commands.Cog):
     @vc.command(name="setup", with_app_command=True)
     async def setup(self, ctx: commands.Context):
         """
-        Set's up a channel for creating custom vc's in, please put this channel in the category you would like all custom vc's to be made in
+        Set's up a channel for creating custom vc's in
+        
+        Please put this channel in the category you would like all custom vc's to be made in
         """
         guild = ctx.guild
         channel = await ctx.guild.create_text_channel("personal-vc-commands")
