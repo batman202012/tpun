@@ -94,7 +94,6 @@ class pvc(commands.Cog):
         pass
 
     @vc.command(name='create', with_app_command=True)
-    @app_commands.guilds(985717471153647616)
     async def create(self, ctx: commands.Context, vcname: str="") -> None:
         """
         Creates a voice channel with <name>
@@ -480,4 +479,4 @@ class pvc(commands.Cog):
 
     @vc.command(name="sync", with_app_command=True)
     async def sync(self, ctx: commands.Context):
-        await self.bot.tree.sync()
+        await self.bot.tree.sync(guild=985717471153647616)
