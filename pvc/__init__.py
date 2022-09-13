@@ -18,7 +18,7 @@ async def setup(bot: Red) -> None:
         if user is None:
             await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
         else:
-            voiceChannel = await pvc.vcOwnerRead(interaction.guild, author.id)
+            voiceChannel = await pvc.vcOwnerRead(pvc, interaction.guild, author.id)
             if voiceChannel is not None and user.voice is not None:
                 await voiceChannel.set_permissions(user, view_channel=True, read_messages=True, send_messages=False, read_message_history=True, use_voice_activation=True, stream=False, connect=True, speak=False, reason="{0} muted {1} in their vc: {2}".format(author.name, user.name, voiceChannel.name))
                 if user.voice.channel.id == voiceChannel.id:
