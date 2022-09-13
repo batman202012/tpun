@@ -478,10 +478,10 @@ class pvc(commands.Cog):
         await asyncio.sleep(30)
         await mess0.delete()
 
-    @app_commands.command(name="PVC Mute", type="user", description="Mutes a user in your personal voice channel")
-    async def contextmute(self, interaction: discord.Interaction):
+    @app_commands.context_menu(name="PVC Mute", type="user")
+    async def contextmute(self, interaction: discord.Interaction) -> None:
         author = interaction.user
-        user = interaction.
+        self.log.info(interaction)
         if user is None:
             await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
         else:
