@@ -3,6 +3,7 @@ from pathlib import Path
 import discord
 
 from redbot.core.bot import Red
+from redbot.core.config import Config
 
 from .pvc import pvc
 
@@ -15,7 +16,7 @@ async def setup(bot: Red) -> None:
 
     @bot.tree.context_menu(name="PVC Mute")
     async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
-        config = pvc.Config.get_conf(
+        config = Config.get_conf(
             pvc,
             identifier=365398642334498816
         )
