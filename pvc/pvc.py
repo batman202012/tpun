@@ -1,6 +1,7 @@
 from ast import Dict
 from distutils.cmd import Command
 from typing import Literal
+from typing_extensions import Self
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 from redbot.core import commands
@@ -479,9 +480,8 @@ class pvc(commands.Cog):
         await mess0.delete()
 
     @app_commands.context_menu(name="PVC Mute")
-    async def contextmute(self, interaction: discord.Interaction,  user: discord.User) -> None:
+    async def contextmute(interaction: discord.Interaction,  user: discord.User, self: Self) -> None:
         author = interaction.user
-        self.log.info(interaction)
         if user is None:
             await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
         else:
