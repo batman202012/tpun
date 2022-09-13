@@ -17,7 +17,7 @@ async def setup(bot: Red) -> None:
     @bot.tree.context_menu(name="PVC Mute")
     async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
         config = Config.get_conf(
-            pvc,
+            pvc(bot),
             identifier=365398642334498816
         )
         author = interaction.user
