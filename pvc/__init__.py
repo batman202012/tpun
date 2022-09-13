@@ -14,20 +14,19 @@ with open(Path(__file__).parent / "info.json") as fp:
 async def setup(bot: Red) -> None:
     await bot.add_cog(pvc(bot))
 
+    async def vcOwnerRead(self, guild, owner):
+        i = await pvc(bot).config.guild(guild).owners()
+        for vcOwner, vcId in i.items():
+            if vcOwner == str(owner):
+                return bot.get_channel(int(vcId))
+
     @bot.tree.context_menu(name="PVC Mute")
     async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
-        config = Config.get_conf(
-            pvc(bot),
-            identifier=365398642334498816
-        )
+        voiceChannel = await vcOwnerRead(interaction.guild, interaction.user.id)
         author = interaction.user
         if user is None:
             await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
         else:
-            i = await config.guild(interaction.guild).owners()
-            for vcOwner, vcId in i.items():
-                if vcOwner == str(interaction.user):
-                    voiceChannel = bot.get_channel(int(vcId))
             if voiceChannel is not None and user.voice is not None:
                 await voiceChannel.set_permissions(user, view_channel=True, read_messages=True, send_messages=False, read_message_history=True, use_voice_activation=True, stream=False, connect=True, speak=False, reason="{0} muted {1} in their vc: {2}".format(author.name, user.name, voiceChannel.name))
                 if user.voice.channel.id == voiceChannel.id:
