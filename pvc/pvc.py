@@ -478,20 +478,3 @@ class pvc(commands.Cog):
         mess2 = await ctx.reply("Your settings are currently: {0} as the channel and {1} are the public roles that will be used.".format(channel.name, roles), ephemeral=True)
         await asyncio.sleep(30)
         await mess0.delete()
-
-@Red.tree.context_menu(name="PVC Mute")
-async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
-    voiceChannel = await pvc.vcOwnerRead(interaction.guild, interaction.user.id)
-    author = interaction.user
-    if user is None:
-        await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
-    else:
-        if voiceChannel is not None and user.voice is not None:
-            await voiceChannel.set_permissions(user, view_channel=True, read_messages=True, send_messages=False, read_message_history=True, use_voice_activation=True, stream=False, connect=True, speak=False, reason="{0} muted {1} in their vc: {2}".format(author.name, user.name, voiceChannel.name))
-            if user.voice.channel.id == voiceChannel.id:
-                await user.move_to(voiceChannel)
-            await interaction.response.send_message("{0} was muted in your vc: {1}".format(user.name, voiceChannel.mention))
-        elif user.voice is None:
-            await interaction.response.send_message("You can't mute someone who isn't in a vc.", ephemeral=True)
-        else:
-            await interaction.response.send_message("{0} You have no vc created use /vc create <Name> to create one.".format(author.name), ephemeral=True)

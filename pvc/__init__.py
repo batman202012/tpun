@@ -22,7 +22,7 @@ async def setup(bot: Red) -> None:
 
     @bot.tree.context_menu(name="PVC Mute")
     async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
-        voiceChannel = await pvc.vcOwnerRead(interaction.guild, interaction.user.id)
+        voiceChannel = await pvc(bot).vcOwnerRead(interaction.guild, interaction.user.id)
         author = interaction.user
         if user is None:
             await interaction.response.send_message("{0} Please mention a user to mute.".format(author.name), ephemeral=True)
