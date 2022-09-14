@@ -479,7 +479,7 @@ class pvc(commands.Cog):
         await asyncio.sleep(30)
         await mess0.delete()
 
-@pvc().bot.tree.context_menu(name="PVC Mute")
+@Red.tree.context_menu(name="PVC Mute")
 async def contextmute(interaction: discord.Interaction,  user: discord.User) -> None:
     voiceChannel = await pvc.vcOwnerRead(interaction.guild, interaction.user.id)
     author = interaction.user
