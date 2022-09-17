@@ -31,9 +31,9 @@ class boostertools(commands.Cog):
                 if role.id in booster_colors:
                     await after.remove_roles(role, reason="{0} is no longer boosting and this is a booster color")
 
-    @commands.command(name="btsetup")
-    async def btsetup(self, ctx):
-        mess1 = await ctx.send("Send a message pinging any booster only roles.")
+    @commands.hybrid_command(name="btsetup", with_app_command=True)
+    async def btsetup(self, ctx: commands.Context) -> None:
+        mess1 = await ctx.reply("Send a message pinging any booster only roles.")
 
         def check(m):
             return m.channel == mess1.channel

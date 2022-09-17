@@ -48,8 +48,8 @@ class timedping(commands.Cog):
                         newTempo = {str(role): int(time.time() + cooldown)}
                         self.tempo.update(newTempo)
 
-    @commands.group(name="tping")
-    async def tping(self, ctx):
+    @commands.hybrid_group(name="tping", with_app_command=True)
+    async def tping(self, ctx: commands.Context):
         """
         Base command for all timed ping commands
         """
@@ -57,7 +57,7 @@ class timedping(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @tping.command(name="add")
-    async def add(self, ctx: commands.Context, role: discord.Role, cooldown: int):
+    async def add(self, ctx: commands.Context, role: discord.Role, cooldown: int) -> None:
         """
         Adds a role to the timed ping list
         """
@@ -70,7 +70,7 @@ class timedping(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @tping.command(name="remove")
-    async def remove(self, ctx: commands.Context, role: discord.Role):
+    async def remove(self, ctx: commands.Context, role: discord.Role) -> None:
         """
         Removes a role from the timed ping list
         """
@@ -82,7 +82,7 @@ class timedping(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @tping.command(name="list")
-    async def list(self, ctx: commands.Context):
+    async def list(self, ctx: commands.Context) -> None:
         """
         Lists all the timed ping roles for the server
         """
