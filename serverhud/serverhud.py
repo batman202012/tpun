@@ -248,97 +248,84 @@ class serverhud(commands.Cog):
         app_commands.Choice(name="Channel Name", value="setname")
     ])
     async def setting(self, ctx: commands.Context, subcommand: app_commands.Choice[str], type: app_commands.Choice[str], *, text: str) -> None:
-        if subcommand.value == "setprefix":
-            if type.value == "newmem":
-                newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+        if type.value == "newmem":
+            newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+            if subcommand.value == "setprefix":
                 newmemDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                await ctx.reply(f"The new member count prefix has been set to {text}", ephemeral=True)
-            elif type.value == "totmem":
-                totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                totmemDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                await ctx.reply(f"The total member count prefix has been set to {text}", ephemeral=True)
-            elif type.value == "totbot":
-                totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                totbotDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                await ctx.reply(f"The total bot count prefix has been set to {text}", ephemeral=True)
-            elif type.value == "truemem":
-                truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                truememDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).truemem.set(truememDict)
-                await ctx.reply(f"The True member count prefix has been set to {text}", ephemeral=True)
-            elif type.value == "booster":
-                boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                boosterDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).booster.set(boosterDict)
-                await ctx.reply(f"The Booster count prefix has been set to {text}", ephemeral=True)
-            elif type.value == "boosterbar":
-                boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
-                boosterBarDict.update({"prefix": text})
-                await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-                await ctx.reply(f"The Booster Bar prefix has been set to {text}", ephemeral=True)
-            else:
-                pass
-
-        if subcommand.value == "setsuffix":
-            if type.value == "newmem":
-                newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
                 newmemDict.update({"suffix": text})
-                await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                await ctx.reply(f"The new member count suffix has been set to {text}", ephemeral=True)
-            elif type.value == "totmem":
-                totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                totmemDict.update({"suffix": text})
-                await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                await ctx.reply(f"The total member count suffix has been set to {text}", ephemeral=True)
-            elif type.value == "totbot":
-                totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                totbotDict.update({"suffix": text})
-                await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                await ctx.reply(f"The total bot count suffix has been set to {text}", ephemeral=True)
-            elif type.value == "truemem":
-                truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                truememDict.update({"suffix": text})
-                await self.config.guild(ctx.guild).truemem.set(truememDict)
-                await ctx.reply(f"The True member count suffix has been set to {text}", ephemeral=True)
-            elif type.value == "booster":
-                boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                boosterDict.update({"suffix": text})
-                await self.config.guild(ctx.guild).booster.set(boosterDict)
-                await ctx.reply(f"The Booster count prefix has been set to {text}", ephemeral=True)
-            else:
-                pass
-
-        if subcommand.value == "setname":
-            if type.value == "newmem":
-                newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+                setting = "suffix"
+            elif subcommand.value == "setname":
                 newmemDict.update({"name": text})
-                await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                await ctx.reply(f"The new member count name has been set to {text}", ephemeral=True)
-            elif type.value == "totmem":
-                totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                totmemDict.update({"name": text})
-                await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                await ctx.reply(f"The total member count name has been set to {text}", ephemeral=True)
-            elif type.value == "totbot":
-                totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                totbotDict.update({"name": text})
-                await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                await ctx.reply(f"The total bot count name has been set to {text}", ephemeral=True)
-            elif type.value == "truemem":
-                truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                truememDict.update({"name": text})
-                await self.config.guild(ctx.guild).truemem.set(truememDict)
-                await ctx.reply(f"The True member count name has been set to {text}", ephemeral=True)
-            elif type.value == "booster":
-                boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                boosterDict.update({"name": text})
-                await self.config.guild(ctx.guild).booster.set(boosterDict)
-                await ctx.reply(f"The Booster count prefix has been set to {text}", ephemeral=True)
+                setting = "name"
             else:
-                pass
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).newmem.set(newmemDict)
+            await ctx.reply(f"The new member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "totmem":
+            totmemDict: dict = await self.config.guild(ctx.guild).totmem()
+            if subcommand.value == "setprefix":
+                totmemDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                totmemDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                totmemDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).totmem.set(totmemDict)
+            await ctx.reply(f"The total member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "totbot":
+            totbotDict: dict = await self.config.guild(ctx.guild).totbot()
+            if subcommand.value == "setprefix":
+                totbotDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                totbotDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                totbotDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).totbot.set(totbotDict)
+            await ctx.reply(f"The total bot count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "truemem":
+            truememDict: dict = await self.config.guild(ctx.guild).truemem()
+            if subcommand.value == "setprefix":
+                truememDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                truememDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                truememDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).truemem.set(truememDict)
+            await ctx.reply(f"The True member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "booster":
+            boosterDict: dict = await self.config.guild(ctx.guild).booster()
+            if subcommand.value == "setprefix":
+                boosterDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                boosterDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                boosterDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).booster.set(boosterDict)
+            await ctx.reply(f"The Booster count {setting} has been set to {text}", ephemeral=True)          
+        else:
+            self.log.warning("Not a valid serverhud type")
+            await ctx.reply("That's not a valid serverhud type")
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="setstyle")
