@@ -16,7 +16,7 @@
 
 <div id="workflow" align="center">
 
-[![Python application](https://github.com/batman202012/tpun/actions/workflows/main.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/main.yml) [![CodeQL](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml)[![Requirements Status](https://requires.io/github/batman202012/tpun/requirements.svg?branch=beta-testing)](https://requires.io/github/batman202012/tpun/requirements/?branch=beta-testing)[![Maintainability](https://api.codeclimate.com/v1/badges/ccf09712a5af256e1fc6/maintainability)](https://codeclimate.com/github/batman202012/tpun/maintainability)
+[![Python application](https://github.com/batman202012/tpun/actions/workflows/main.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/main.yml) [![CodeQL](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml)[![Requirements Status](https://requires.io/github/batman202012/tpun/requirements.svg?branch=beta-testing)](https://requires.io/github/batman202012/tpun/requirements/?branch=beta-testing)[![Maintainability](https://api.codeclimate.com/v1/badges/ccf09712a5af256e1fc6/maintainability?branch=beta-testing)](https://codeclimate.com/github/batman202012/tpun/maintainability)
 
 </div>
 
