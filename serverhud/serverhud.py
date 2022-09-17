@@ -377,7 +377,7 @@ class serverhud(commands.Cog):
         if event.value == "join":
             memberList = ctx.guild.members
             await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
             await self.members(ctx.guild)
             await self.boosters(ctx.guild)
             await ctx.reply("Test of the member join/leave event.", ephemeral=True)
