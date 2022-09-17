@@ -210,35 +210,31 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    def getRegion(self, int):
-        conditions = {
-            1: "us-west",
-            2: "us-east",
-            3: "us-south",
-            4: "rotterdam",
-            5: "singapore",
-            6: "brazil",
-            7: "hongkong",
-            8: "india",
-            9: "japan",
-            10: "russia",
-            11: "sydney",
-            12: "southafrica",
-            13: "south-korea"
-        }
-        if int in conditions.keys():
-            return conditions[int]
-
     @vc.command(name="region")
-    async def region(self, ctx: commands.Context, region: int) -> None:
+    @app_commands.choices(choices=[
+        app_commands.Choice(name="Auto", value="auto"),
+        app_commands.Choice(name="US West", value="us-west"),
+        app_commands.Choice(name="US East", value="us-east"),
+        app_commands.Choice(name="US South", value="us-south"),
+        app_commands.Choice(name="Rotterdam", value="rotterdam"),
+        app_commands.Choice(name="Singapore", value="singapore"),
+        app_commands.Choice(name="Brazil", value="brazil"),
+        app_commands.Choice(name="Hongkong", value="hongkong"),
+        app_commands.Choice(name="India", value="india"),
+        app_commands.Choice(name="Japan", value="japan"),
+        app_commands.Choice(name="Russia", value="russia"),
+        app_commands.Choice(name="Sydney", value="sydney"),
+        app_commands.Choice(name="South Africa", value="southafrica"),
+        app_commands.Choice(name="South Korea", value="south-korea")
+    ])
+    async def region(self, ctx: commands.Context, region: app_commands.Choice[str]) -> None:
         """
         Changes the region of your vc.
 
         The list of avaliable regions are as follows 0=Auto, 1=US West, 2=US East, 3=US South, 4=EU West,
          5=EU Central, 6=Brazil, 7=Hong Kong, 8=Brazil, 9=Japan, 10=Russia, 11=Sydney, 12=South Africa
         """
-        region1 = self.getRegion(region)
-        message = region1
+        message = region
         voiceChannel = await self.getVoiceChannel(ctx)
         if voiceChannel is not None:
             if region1 is None:
