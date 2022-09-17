@@ -364,22 +364,13 @@ class serverhud(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="test")
-    @app_commands.choices(event=[
-        app_commands.Choice(name="Join/Leave", value="join")
-    ])
-    async def test(self, ctx: commands.Context, event: app_commands.Choice[str]) -> None:
+    async def test(self, ctx: commands.Context) -> None:
         """
         Test the cog to insure functionality
-
-        You can test different events using this command:
-        join, leave
         """
-        if event.value == "join":
-            memberList = ctx.guild.members
-            await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
-            await self.members(ctx.guild)
-            await self.boosters(ctx.guild)
-            await ctx.reply("Test of the member join/leave event.", ephemeral=True)
-        else:
-            await ctx.reply("That is not a valid event do [p]help serverhud test for a list of events", ephemeral=True)
+        memberList = ctx.guild.members
+        await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
+        await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
+        await self.members(ctx.guild)
+        await self.boosters(ctx.guild)
+        await ctx.reply("Test of the member join/leave event.", ephemeral=True)
