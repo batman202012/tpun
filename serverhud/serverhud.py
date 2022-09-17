@@ -151,7 +151,7 @@ class serverhud(commands.Cog):
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.utcnow() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
@@ -161,7 +161,7 @@ class serverhud(commands.Cog):
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.utcnow() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
