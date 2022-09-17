@@ -384,6 +384,6 @@ class serverhud(commands.Cog):
             await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
             await self.members(ctx.guild)
             await self.boosters(ctx.guild)
-            await ctx.reply("Test of the member join/leave event.", ephemeral=True)
+            await ctx.send("Test of the member join/leave event.", ephemeral=True)
         else:
-            await ctx.reply("That is not a valid event do [p]help serverhud test for a list of events", ephemeral=True)
+            await ctx.send("That is not a valid event do [p]help serverhud test for a list of events", ephemeral=True)
