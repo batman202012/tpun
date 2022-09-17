@@ -120,7 +120,7 @@ class pvc(commands.Cog):
             else:
                 pass
             if vcChannel is None:
-                channel = await guild.create_voice_channel(vcName, category=category)
+                channel = await guild.create_voice_channel(name, category=category)
                 await channel.set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                 for role in roleList:
                     await channel.set_permissions(guild.get_role(role), view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
@@ -413,7 +413,7 @@ class pvc(commands.Cog):
                             owner = int(vcOwnList)
                             ownerObj = await self.bot.get_or_fetch_member(guild, owner)
                             if ownerObj.voice is None or ownerObj.voice.channel.id != channelid:
-                                await ctx.reply("{0} has claimed {1}".format(ctx.author.mention, self.bot.get_channel(vcNameList).mention))
+                                await ctx.reply("{0} has claimed {1}".format(ctx.author.mention, self.bot.get_channel(vcId).mention))
                                 await self.bot.get_channel(vcId).set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
                                 await self.config.member(ownerObj).channel_id.set(0)
                                 await self.config.member(ctx.author).channel_id.set(channelid)
@@ -436,7 +436,7 @@ class pvc(commands.Cog):
                 vcObj = await self.getVoiceChannel(ctx)
                 ownerObj = await self.bot.get_or_fetch_member(guild, ctx.author.id)
                 for vcOwner in x.items():
-                    if vcOwner == newOwner.id:
+                    if vcOwner == newowner.id:
                         alreadyOwns = True
                 else:
                     pass
