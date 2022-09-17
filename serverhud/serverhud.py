@@ -146,27 +146,27 @@ class serverhud(commands.Cog):
                 await asyncio.sleep(15)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.utcnow() - timedelta(days=1)]))
         await self.members(guild)
         await self.boosters(guild)
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member: discord.Member):
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.utcnow() - timedelta(days=1)]))
         await self.members(guild)
         await self.boosters(guild)
 
     @commands.Cog.listener()
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         await asyncio.sleep(30)
         if before.guild.premium_subscriber_role not in before.roles and after.guild.premium_subscriber_role in after.roles:
             await self.boosters(before.guild)
