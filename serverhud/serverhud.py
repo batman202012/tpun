@@ -349,12 +349,12 @@ class serverhud(commands.Cog):
 
         Valid types are full and empty
         """
-        if type == "full":
+        if type == "Full":
             boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
             boosterBarDict.update({"stylefull": style})
             await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
             await ctx.reply(f"The Booster Bar full style has been set to {style}", ephemeral=True)
-        elif type == "empty":
+        elif type == "Empty":
             boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
             boosterBarDict.update({"styleempty": style})
             await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
