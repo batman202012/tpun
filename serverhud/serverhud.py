@@ -198,37 +198,36 @@ class serverhud(commands.Cog):
         The command syntax is [p]serverhud setchannel <type> <channel id>
         For a list of channel types use [p]serverhud types
         """
-        channel = channel.id
         if type == "newmem":
             newmemDict: dict = await self.config.guild(ctx.guild).newmem()
-            newmemDict.update({"channel": channel})
+            newmemDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).newmem.set(newmemDict)
-            await ctx.reply(f"The new member count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The new member count channel has been set to <#{channel.id}>", ephemeral=True)
         elif type == "totmem":
             totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-            totmemDict.update({"channel": channel})
+            totmemDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).totmem.set(totmemDict)
-            await ctx.reply(f"The total member count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The total member count channel has been set to <#{channel.id}>", ephemeral=True)
         elif type == "totbot":
             totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-            totbotDict.update({"channel": channel})
+            totbotDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).totbot.set(totbotDict)
-            await ctx.reply(f"The total bot count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The total bot count channel has been set to <#{channel.id}>", ephemeral=True)
         elif type == "truemem":
             truememDict: dict = await self.config.guild(ctx.guild).truemem()
-            truememDict.update({"channel": channel})
+            truememDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).truemem.set(truememDict)
-            await ctx.reply(f"The True member count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The True member count channel has been set to <#{channel.id}>", ephemeral=True)
         elif type == "booster":
             boosterDict: dict = await self.config.guild(ctx.guild).booster()
-            boosterDict.update({"channel": channel})
+            boosterDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).booster.set(boosterDict)
-            await ctx.reply(f"The Booster count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The Booster count channel has been set to <#{channel.id}>", ephemeral=True)
         elif type == "boosterbar":
             boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
-            boosterBarDict.update({"channel": channel})
+            boosterBarDict.update({"channel": channel.id})
             await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-            await ctx.reply(f"The Booster count channel has been set to <#{channel}>", ephemeral=True)
+            await ctx.reply(f"The Booster count channel has been set to <#{channel.id}>", ephemeral=True)
         else:
             pass
 
