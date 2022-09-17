@@ -377,6 +377,7 @@ class serverhud(commands.Cog):
         You can test different events using this command:
         join, leave
         """
+        await ctx.reply("Running test, this may take a while", ephemeral=True)
         utc=pytz.UTC
         if event.value == "join":
             memberList = ctx.guild.members
