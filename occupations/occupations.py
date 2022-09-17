@@ -121,14 +121,14 @@ class occupations(commands.Cog):
                 self.log.warning("Something went wrong in on_voice_update")
 
 
-    @commands.hybrid_group(name="job", with_app_commands=True)
+    @commands.hybrid_group(name="job", with_app_command=True)
     async def job(self, ctx: commands.Context):
         """
         Base command for occupation related commands
         """
         pass
 
-    @job.command(name="board", with_app_commands=True)
+    @job.command(name="board")
     async def jobboard(self, ctx: commands.Context) -> None:
         """
         Displays the job board with a list of jobs
@@ -199,7 +199,7 @@ class occupations(commands.Cog):
     async def random_generator(self, jobList):
         return random.randint(0, (len(jobList)-1))
 
-    @job.command(name="current", with_app_commands=True)
+    @job.command(name="current")
     async def currentjob(self, ctx: commands.Context):
         """
         Displays the user's current job
@@ -211,7 +211,7 @@ class occupations(commands.Cog):
         else:
             await ctx.reply("You do not have a job yet.")
 
-    @job.command(name="quit", with_app_commands=True)
+    @job.command(name="quit")
     async def quitjob(self, ctx: commands.Context):
         """
         Quits your current job
@@ -221,7 +221,7 @@ class occupations(commands.Cog):
         await ctx.reply("You quit your job. Better search for a new one soon...")
 
     @commands.guildowner_or_permissions()
-    @job.command(name="maxsalary", with_app_commands=True)
+    @job.command(name="maxsalary")
     async def maxsalary(self, ctx: commands.Context, salary: int = 10000):
         """
         Command for setting the max salary
@@ -238,7 +238,7 @@ class occupations(commands.Cog):
         await ctx.reply(message)
 
     @commands.guildowner_or_permissions()
-    @job.command(name="chancescalar", with_app_commands=True)
+    @job.command(name="chancescalar")
     async def chancescalar(self, ctx: commands.Context, scalar: float = 1.0):
         """
         Command for setting the scalar for chances of getting a job
@@ -257,7 +257,7 @@ class occupations(commands.Cog):
         await ctx.reply(message)
 
     @commands.guildowner_or_permissions()
-    @job.command(name="cooldown", with_app_commands=True)
+    @job.command(name="cooldown")
     async def cooldown(self, ctx: commands.Context, seconds: float = 1.0):
         """
         Command for setting the cooldown
@@ -266,7 +266,7 @@ class occupations(commands.Cog):
         await ctx.reply(f"The job search cooldown was set to `{seconds}` seconds.")
 
     @commands.guildowner_or_permissions()
-    @job.command(name="salaryscalar", with_app_commands=True)
+    @job.command(name="salaryscalar")
     async def salaryscalar(self, ctx: commands.Context, scalar: float = 1.0):
         """
         Command for setting the salary scalar
@@ -283,7 +283,7 @@ class occupations(commands.Cog):
         await ctx.reply(message)
 
     @commands.guildowner_or_permissions()
-    @job.command(name="settings", with_app_commands=True)
+    @job.command(name="settings")
     async def settings(self, ctx: commands.Context):
         """
         Displays current settings for occupations cog

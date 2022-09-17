@@ -39,9 +39,8 @@ class timedping(commands.Cog):
                         newTempo = {str(role): int(time.time() + cooldown)}
                         self.tempo.update(newTempo)
                     elif self.tempo[role] > time.time():
-                        await message.reply("There is a {0} second cooldown in between uses. There is <t:{1}:R>"
-                            .format(str(cooldown), int(self.tempo[role]))
-                            + "remaining in the cooldown"
+                        await message.reply(f"There is a {str(cooldown)} second cooldown in between uses. There is <t:{int(self.tempo[role])}:R> remaining in the cooldown",
+                        ephemeral=True
                         )
                     else:
                         await message.reply("<@&{0}>".format(int(role)))
@@ -66,7 +65,7 @@ class timedping(commands.Cog):
         pingableRoles = await self.config.guild(guild).pingableroles()
         pingableRoles.update(nC)
         await self.config.guild(guild).pingableroles.set(pingableRoles)
-        await ctx.send("{0} was added to the Timed Ping List with cooldown {1} seconds".format(role.mention, cooldown))
+        await ctx.send(f"{role.mention} was added to the Timed Ping List with cooldown {cooldown} seconds", ephemeral=True)
 
     @commands.guildowner_or_permissions()
     @tping.command(name="remove")
@@ -78,7 +77,7 @@ class timedping(commands.Cog):
         pingableRoles = await self.config.guild(guild).pingableroles()
         pingableRoles.pop(str(role.id), None)
         await self.config.guild(guild).pingableroles.set(pingableRoles)
-        await ctx.send("{0} was removed from the Timed Ping List".format(role.mention))
+        await ctx.send(f"{role.mention} was removed from the Timed Ping List", ephemeral=True)
 
     @commands.guildowner_or_permissions()
     @tping.command(name="list")
@@ -90,10 +89,10 @@ class timedping(commands.Cog):
         roles = ""
         pingableRoles = await self.config.guild(guild).pingableroles()
         for role, cooldown in pingableRoles.items():
-            roles = roles + "<@&{0}> with cooldown {1} seconds \n".format(role, cooldown)
+            roles = roles + f"<@&{role}> with cooldown {cooldown} seconds \n"
         if roles != "":
-            mess1 = await ctx.send(roles)
+            mess1 = await ctx.send(roles, ephemeral=True)
         else:
-            mess1 = await ctx.send("There are no pingable roles set up yet")
+            mess1 = await ctx.reply("There are no pingable roles set up yet", ephemeral=True)
         await asyncio.sleep(120)
         await mess1.delete()

@@ -101,7 +101,7 @@ class pvc(commands.Cog):
         """
         pass
 
-    @vc.command(name='create', with_app_command=True)
+    @vc.command(name='create')
     async def create(self, ctx: commands.Context, name: str="") -> None:
         """
         Creates a voice channel with <name>
@@ -137,7 +137,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("This command only works in the custom vc {0} channel.".format(dsChannel.mention), ephemeral=True)
 
-    @vc.command(name='delete', with_app_command=True)
+    @vc.command(name='delete')
     async def delete(self, ctx: commands.Context, reason: str="") -> None:
         """
         Deletes your personal channel
@@ -163,7 +163,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You can't delete a VC if you don't have one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name='name', with_app_command=True)
+    @vc.command(name='name')
     async def name(self, ctx: commands.Context) -> None:
         """
         Returns the name of your vc
@@ -174,7 +174,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name='list', with_app_command=True)
+    @vc.command(name='list')
     async def list(self, ctx: commands.Context) -> None:
         """
         Lists all the owners of vc's
@@ -195,7 +195,7 @@ class pvc(commands.Cog):
                     pass
         await ctx.reply(embed=embed)
 
-    @vc.command(name="rename", with_app_command=True)
+    @vc.command(name="rename")
     async def rename(self, ctx: commands.Context, rename: str ="") -> None:
         """
         Renames your personal vc
@@ -229,7 +229,7 @@ class pvc(commands.Cog):
         if int in conditions.keys():
             return conditions[int]
 
-    @vc.command(name="region", with_app_command=True)
+    @vc.command(name="region")
     async def region(self, ctx: commands.Context, region: int) -> None:
         """
         Changes the region of your vc.
@@ -249,7 +249,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="lock", with_app_command=True)
+    @vc.command(name="lock")
     async def lock(self, ctx: commands.Context) -> None:
         """
         Changes your vc to invite/request only.
@@ -265,7 +265,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="unlock", with_app_command=True)
+    @vc.command(name="unlock")
     async def unlock(self, ctx: commands.Context) -> None:
         """
         Unlocks your vc
@@ -280,7 +280,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="invite", with_app_command=True)
+    @vc.command(name="invite")
     async def invite(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Invites a user to your vc
@@ -297,7 +297,7 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="limit", with_app_command=True)
+    @vc.command(name="limit")
     async def limit(self, ctx: commands.Context, limit: int = 0):
         """
         Sets the limit for how many spots are in vc, use 0 to remove limit
@@ -309,7 +309,7 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="request", with_app_command=True)
+    @vc.command(name="request")
     async def request(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Sends a user a request to join their vc, request last 5 minutes
@@ -341,7 +341,7 @@ class pvc(commands.Cog):
                     else:
                         pass
 
-    @vc.command(name="kick", with_app_command=True)
+    @vc.command(name="kick")
     async def kick(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Kicks a user from your vc
@@ -359,7 +359,7 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="mute", with_app_command=True, type="user")
+    @vc.command(name="mute", type="user")
     async def mute(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Mutes a user inside your vc
@@ -378,7 +378,7 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="unmute", with_app_command=True)
+    @vc.command(name="unmute")
     async def unmute(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Unmutes a user inside your vc
@@ -395,7 +395,7 @@ class pvc(commands.Cog):
             else:
                 await ctx.reply("{0} You have no vc created use /vc create <Name> to create one.".format(ctx.author.name), ephemeral=True)
 
-    @vc.command(name="claim", with_app_command=True)
+    @vc.command(name="claim")
     async def claim(self, ctx: commands.Context) -> None:
         """
         Claims a voice channel from another user if they're not in it.
@@ -421,7 +421,7 @@ class pvc(commands.Cog):
                             else:
                                 await ctx.reply("<@{0}> is still in their vc you can only run this when they have left".format(owner), ephemeral=True)
 
-    @vc.command(name="transfer", with_app_command=True)
+    @vc.command(name="transfer")
     async def transfer(self, ctx: commands.Context, newowner: discord.Member) -> None:
         """
         Transfers a voice channel to another user
@@ -454,8 +454,8 @@ class pvc(commands.Cog):
         else:
             await ctx.reply("You can only run this command while you are in your voice channel.", ephemeral=True)
 
-    @vc.command(name="setup", with_app_command=True)
-    async def setup(self, ctx: commands.Context):
+    @vc.command(name="setup")
+    async def setup(self, ctx: commands.Context) -> None:
         """
         Set's up a channel for creating custom vc's in
         
