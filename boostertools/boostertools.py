@@ -33,6 +33,9 @@ class boostertools(commands.Cog):
 
     @commands.hybrid_command(name="btsetup", with_app_command=True)
     async def btsetup(self, ctx: commands.Context) -> None:
+        """
+        Setup command for booster tools
+        """
         mess1 = await ctx.reply("Send a message pinging any booster only roles.")
 
         def check(m):

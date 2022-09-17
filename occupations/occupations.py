@@ -200,7 +200,7 @@ class occupations(commands.Cog):
         return random.randint(0, (len(jobList)-1))
 
     @job.command(name="current")
-    async def currentjob(self, ctx: commands.Context):
+    async def currentjob(self, ctx: commands.Context) -> None:
         """
         Displays the user's current job
         """
@@ -222,7 +222,7 @@ class occupations(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @job.command(name="maxsalary")
-    async def maxsalary(self, ctx: commands.Context, salary: int = 10000):
+    async def maxsalary(self, ctx: commands.Context, salary: int = 10000) -> None:
         """
         Command for setting the max salary
         """
@@ -239,7 +239,7 @@ class occupations(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @job.command(name="chancescalar")
-    async def chancescalar(self, ctx: commands.Context, scalar: float = 1.0):
+    async def chancescalar(self, ctx: commands.Context, scalar: float = 1.0) -> None:
         """
         Command for setting the scalar for chances of getting a job
 
@@ -258,7 +258,7 @@ class occupations(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @job.command(name="cooldown")
-    async def cooldown(self, ctx: commands.Context, seconds: float = 1.0):
+    async def cooldown(self, ctx: commands.Context, seconds: float = 1.0) -> None:
         """
         Command for setting the cooldown
         """
@@ -267,7 +267,7 @@ class occupations(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @job.command(name="salaryscalar")
-    async def salaryscalar(self, ctx: commands.Context, scalar: float = 1.0):
+    async def salaryscalar(self, ctx: commands.Context, scalar: float = 1.0) -> None:
         """
         Command for setting the salary scalar
 
@@ -284,7 +284,7 @@ class occupations(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @job.command(name="settings")
-    async def settings(self, ctx: commands.Context):
+    async def settings(self, ctx: commands.Context) -> None:
         """
         Displays current settings for occupations cog
         """
