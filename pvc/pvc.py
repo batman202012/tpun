@@ -232,7 +232,7 @@ class pvc(commands.Cog):
         The list of avaliable regions are as follows 0=Auto, 1=US West, 2=US East, 3=US South, 4=EU West,
          5=EU Central, 6=Brazil, 7=Hong Kong, 8=Brazil, 9=Japan, 10=Russia, 11=Sydney, 12=South Africa
         """
-        message = region
+        message = region.value
         voiceChannel = await self.getVoiceChannel(ctx)
         if voiceChannel is not None:
             self.log.info(region)
