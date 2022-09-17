@@ -235,10 +235,7 @@ class pvc(commands.Cog):
         message = region
         voiceChannel = await self.getVoiceChannel(ctx)
         if voiceChannel is not None:
-            if region1 is None:
-                region1 = None
-                message = "auto"
-            await voiceChannel.edit(rtc_region=region1)
+            await voiceChannel.edit(rtc_region=region)
             await ctx.reply(f"{ctx.author.name} Your vc: {voiceChannel.mention} was set to region {message}.")
         else:
             await ctx.reply("You have no vc created use /vc create <Name> to create one.", ephemeral=True)
