@@ -6,6 +6,7 @@ from discord import app_commands
 import discord
 import asyncio
 import logging
+import pytz
 from datetime import datetime, timedelta
 RequestType = Literal["discord_deleted_user", "owner", "user", "user_strict"]
 
@@ -147,21 +148,23 @@ class serverhud(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        utc=pytz.UTC
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
+        utc=pytz.UTC
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
@@ -364,13 +367,23 @@ class serverhud(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="test")
-    async def test(self, ctx: commands.Context) -> None:
+    @app_commands.choices(event=[
+        app_commands.Choice(name="Join/Leave", value="join")
+    ])
+    async def test(self, ctx: commands.Context, event: app_commands.Choice[str]) -> None:
         """
         Test the cog to insure functionality
+
+        You can test different events using this command:
+        join, leave
         """
-        memberList = ctx.guild.members
-        await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
-        await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > (datetime.utcnow() - timedelta(days=1))]))
-        await self.members(ctx.guild)
-        await self.boosters(ctx.guild)
-        await ctx.reply("Test of the member join/leave event.", ephemeral=True)
+        utc=pytz.UTC
+        if event.value == "join":
+            memberList = ctx.guild.members
+            await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
+            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
+            await self.members(ctx.guild)
+            await self.boosters(ctx.guild)
+            await ctx.reply("Test of the member join/leave event.", ephemeral=True)
+        else:
+            await ctx.reply("That is not a valid event do [p]help serverhud test for a list of events", ephemeral=True)
