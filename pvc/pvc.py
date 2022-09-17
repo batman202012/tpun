@@ -235,6 +235,7 @@ class pvc(commands.Cog):
         message = region
         voiceChannel = await self.getVoiceChannel(ctx)
         if voiceChannel is not None:
+            self.log.info(region)
             await voiceChannel.edit(rtc_region=region)
             await ctx.reply(f"{ctx.author.name} Your vc: {voiceChannel.mention} was set to region {message}.")
         else:
