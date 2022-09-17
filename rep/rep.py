@@ -43,14 +43,14 @@ class rep(commands.Cog):
                         break
                 if not found:
                     newWrite = {id: 1}
-                    await message.channel.send("**+rep** {0} you now have: {1} Rep".format(user.name, str(1)))
                 x.pop(str(id), None)
                 x.update(newWrite)
             await self.config.reputation.set(x)
+                    await message.reply("**+rep** {0} you now have: {1} Rep".format(user.name, str(currentRep)))
 
     @commands.mod()
-    @commands.command(name="repremove")
-    async def repremove(self, ctx: commands.Context, user: discord.Member, amount: int):
+    @commands.hybrid_command(name="repremove", with_app_command=True)
+    async def repremove(self, ctx: commands.Context, user: discord.Member, amount: int) -> None:
         """
         Removes a amount from a users reputation
         """
@@ -60,18 +60,17 @@ class rep(commands.Cog):
             if userId == str(user.id):
                 currentRep = userRep - amount
                 newWrite = {user.id: currentRep}
-                await ctx.send("**-rep** {0} took away {1} rep from {2}. They now have {3}"
-                    .format(ctx.author.name, amount, user.name, currentRep)
-                )
         if newWrite is not None:
             x.pop(str(user.id), None)
             x.update(newWrite)
+            await ctx.reply("**-rep** {0} took away {1} rep from {2}. They now have {3}"
+                .format(ctx.author.name, amount, user.name, currentRep)
         else:
-            await ctx.send("This user already has no reputation")
         await self.config.reputation.set(x)
+            await ctx.reply("You can't take reputation away from someone who doesn't have one.", ephemeral=True)
 
-    @commands.command(name="checkrep")
-    async def checkrep(self, ctx: commands.Context, user: discord.Member):
+    @commands.hybrid_command(name="checkrep", with_app_command=True)
+    async def checkrep(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Displays a user's reputation
         """
@@ -79,7 +78,7 @@ class rep(commands.Cog):
         x = await self.config.reputation()
         for userId, userRep in x.items():
             if userId == str(user.id):
-                await ctx.send("{0} has {1} reputation".format(user.name, userRep))
                 userFound = True
         if userFound is False:
-            await ctx.send("{0} doesn't have a reputation.".format(user.name))
+            await ctx.reply("{0} has {1} reputation".format(user.name, currentRep))
+            await ctx.reply("{0} doesn't have a reputation.".format(user.name))
