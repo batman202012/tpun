@@ -209,7 +209,7 @@ class pvc(commands.Cog):
                 await ctx.reply("You have no vc created use /vc create <Name> to create one.", ephemeral=True)
 
     @vc.command(name="region")
-    @app_commands.choices(choices=[
+    @app_commands.choices(region=[
         app_commands.Choice(name="Auto", value="auto"),
         app_commands.Choice(name="US West", value="us-west"),
         app_commands.Choice(name="US East", value="us-east"),
