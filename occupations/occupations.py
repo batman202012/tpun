@@ -303,16 +303,15 @@ class occupations(commands.Cog):
             embed.add_field(name="Salary Scalar:", value=salaryScalar, inline=False)
             mess = await ctx.reply(embed=embed)
 
-        if subcommand == "maxsalary":
+        if subcommand.value == "maxsalary":
             await maxsalary(ctx, setting)
-        elif subcommand == "chancescalar":
+        elif subcommand.value == "chancescalar":
             await chancescalar(ctx, setting)
-        elif subcommand == "cooldown":
+        elif subcommand.value == "cooldown":
             await cooldown(ctx, setting)
-        elif subcommand == "salaryscalar":
+        elif subcommand.value == "salaryscalar":
             await salaryscalar(ctx, setting)
-        elif subcommand == "current":
+        elif subcommand.value == "current":
             await current(ctx)
         else:
             await ctx.reply("This is not a valid subcommand options are: 'maxsalary', 'chancescalar','cooldown','salaryscalar', or 'current'")
-            await ctx.send(subcommand)
