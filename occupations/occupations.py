@@ -231,7 +231,7 @@ class occupations(commands.Cog):
         app_commands.Choice(name="current", value="current")
     ])
     @app_commands.describe(subcommand="This is the setting you wish to change")
-    async def settings(self, ctx: commands.Context, subcommand: app_commands.Choice[str], setting: float):
+    async def settings(self, ctx: commands.Context, subcommand: app_commands.Choice[str], setting: float = None):
 
         async def maxsalary(self, ctx: commands.Context, setting: float = 10000) -> None:
             """
