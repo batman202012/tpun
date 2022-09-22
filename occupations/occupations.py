@@ -304,14 +304,14 @@ class occupations(commands.Cog):
             mess = await ctx.reply(embed=embed)
 
         if subcommand.value == "maxsalary":
-            await maxsalary(ctx, setting)
+            await maxsalary(self, ctx, setting)
         elif subcommand.value == "chancescalar":
-            await chancescalar(ctx, setting)
+            await chancescalar(self, ctx, setting)
         elif subcommand.value == "cooldown":
-            await cooldown(ctx, setting)
+            await cooldown(self, ctx, setting)
         elif subcommand.value == "salaryscalar":
-            await salaryscalar(ctx, setting)
+            await salaryscalar(self, ctx, setting)
         elif subcommand.value == "current":
-            await current(ctx)
+            await current(self, ctx)
         else:
             await ctx.reply("This is not a valid subcommand options are: 'maxsalary', 'chancescalar','cooldown','salaryscalar', or 'current'")
