@@ -194,16 +194,16 @@ class pvc(commands.Cog):
         await ctx.reply(embed=embed)
 
     @vc.command(name="rename")
-    async def rename(self, ctx: commands.Context, rename: str ="") -> None:
+    async def rename(self, ctx: commands.Context, newname: str ="") -> None:
         """
         Renames your personal vc
         """
-        if rename is None:
+        if newname is None:
             await ctx.reply("Please enter a new name for your vc.", ephemeral=True)
         else:
             voiceChannel = await self.getVoiceChannel(ctx)
             if voiceChannel is not None:
-                await voiceChannel.edit(name=rename)
+                await voiceChannel.edit(name=newname)
                 await ctx.reply(f"{ctx.author.name} Your channel's name was changed to {voiceChannel.mention}")
             else:
                 await ctx.reply("You have no vc created use /vc create <Name> to create one.", ephemeral=True)
