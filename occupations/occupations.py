@@ -222,7 +222,7 @@ class occupations(commands.Cog):
 
 
     @commands.guildowner_or_permissions()
-    @job.command(name="settings")
+    @job.command(name="settings",)
     @app_commands.choices(subcommand=[
         app_commands.Choice(name="Max Salary", value="maxsalary"),
         app_commands.Choice(name="Chance Scalar", value="chancescalar"),
@@ -315,3 +315,4 @@ class occupations(commands.Cog):
             await current(ctx)
         else:
             await ctx.reply("This is not a valid subcommand options are: 'maxsalary', 'chancescalar','cooldown','salaryscalar', or 'current'")
+            await ctx.send(subcommand)
