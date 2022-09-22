@@ -231,7 +231,7 @@ class occupations(commands.Cog):
         app_commands.Choice(name="current", value="current")
     ])
     @app_commands.describe(subcommand="This is the setting you wish to change")
-    async def settings(self, ctx: commands.Context, subcommand: app_commands.Choice[str], setting: float):
+    async def settings(self, ctx: commands.Context, subcommand: app_commands.Choice[str], *, setting: float):
 
         async def maxsalary(self, ctx: commands.Context, setting: float = 10000) -> None:
             """
@@ -297,11 +297,12 @@ class occupations(commands.Cog):
             chanceScalar = await self.config.guild(ctx.guild).chancescalar()
             salaryScalar = await self.config.guild(ctx.guild).salaryscalar()
             embed = discord.Embed(title="Job Settings", description="The current settings in this guild are:", color=0xc72327)
-            embed.add_field(name="Max salary:", value=maxsalary, inline=False)
-            embed.add_field(name="Cooldown:", value=cooldown, inline=False)
+            embed.add_field(name="Max salary:", value=f"{maxsalary} {bank.get_currency_name(ctx.guild)}", inline=False)
+            embed.add_field(name="Cooldown:", value=f"{cooldown} seconds", inline=False)
             embed.add_field(name="Chance Scalar:", value=chanceScalar, inline=False)
             embed.add_field(name="Salary Scalar:", value=salaryScalar, inline=False)
             mess = await ctx.reply(embed=embed)
+            
 
         if subcommand.value == "maxsalary":
             await maxsalary(self, ctx, setting)
