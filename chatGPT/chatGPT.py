@@ -33,8 +33,8 @@ class chatGPT(commands.Cog):
 
   async def send_message(self, user_id, message, model, tokenLimit):
     if user_id not in self.user_threads:
-      self.user_threads[user_id] = ""
-    self.prompt = self.user_threads[user_id]
+      self.user_threads[0] = ""
+    self.prompt = self.user_threads[0]
     response = openai.Completion.create(
       engine=model,
       prompt=self.prompt + message,
@@ -43,8 +43,8 @@ class chatGPT(commands.Cog):
       stop=None,
       temperature=0.5
     )
-    self.user_threads[user_id] = response["choices"][0]["text"]
-    return self.user_threads[user_id]
+    self.user_threads[0] = response["choices"][0]["text"]
+    return self.user_threads[0]
 
   
 
