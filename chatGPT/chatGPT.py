@@ -43,7 +43,7 @@ class chatGPT(commands.Cog):
       stop=None,
       temperature=0.5
     )
-    self.user_threads[user_id] = response["choices"][0]["text"]
+    self.user_threads[user_id] = await response["choices"][0]["text"]
     return self.user_threads[user_id]
 
   
