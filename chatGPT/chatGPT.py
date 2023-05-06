@@ -31,7 +31,7 @@ class chatGPT(commands.Cog):
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def send_message(self, user_id, message, model, tokenLimit):
+  async def send_message(self, user_id, message, model, tokenLimit) -> None:
     if user_id not in self.user_threads:
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
@@ -48,7 +48,7 @@ class chatGPT(commands.Cog):
 
   
 
-  async def send_chat(self, ctx: commands.Context, query: str):
+  async def send_chat(self, ctx: commands.Context, query: str) -> None:
     async with ctx.typing():
         try:
             model = await self.config.model()
@@ -71,12 +71,12 @@ class chatGPT(commands.Cog):
                     await ctx.send(file=discord.File(f))
                     os.remove(f)
             else:
-                await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.")
+                await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.", ephemeral=True)
         except openai.error.InvalidRequestError as err:
             await ctx.send(err)
 
   @commands.Cog.listener()
-  async def on_message_without_command(self, message: discord.Message):
+  async def on_message_without_command(self, message: discord.Message) -> None:
     whitelistedChannels: list = await self.config.guild(message.guild).channels()
     replyRespond: bool = await self.config.guild(message.guild).replyRespond()
     query = message.content
@@ -96,7 +96,7 @@ class chatGPT(commands.Cog):
                     self.log.debug("Final query: " + query)
                     validFile = True
             if not validFile:
-                await ctx.reply("Sorry but that isn't a valid filetype.")
+                await ctx.reply("Sorry but that isn't a valid filetype.", ephemeral=True)
         await self.send_chat(ctx, query)
     if replyRespond and message.reference is not None and message.author.id != self.bot.user.id:
         # Fetching the message
@@ -106,15 +106,15 @@ class chatGPT(commands.Cog):
         if context.author.id == self.bot.user.id:
             await self.send_chat(ctx, query)
 
-  @commands.group(name="chatgpt")
-  async def chatgpt(self, ctx: commands.Context):
+  @commands.hybrid_group(name='chatgpt', with_app_command=True)
+  async def chatgpt(self, ctx: commands.Context) -> None:
         """
         Base command for chatgpt related commands
         """
         pass
 
   @chatgpt.command(name="chat")
-  async def chat(self, ctx: commands.Context, *, query: str):
+  async def chat(self, ctx: commands.Context, *, query: str) -> None:
     """
     Asks chatgpt a query
     """
@@ -131,14 +131,14 @@ class chatGPT(commands.Cog):
       message = "The current channels are:\n"
       for channelId in currentChannels:
         message = message + "<#" + str(channelId) + ">\n"
-      await ctx.reply(message)
+      await ctx.reply(message, ephemeral=True)
     else:
-      await ctx.reply("There are currently no channels whitelisted for chatGPT.")
+      await ctx.reply("There are currently no channels whitelisted for chatGPT.", ephemeral=True)
 
 
   @checks.guildowner()
   @chatgpt.command(name="set")
-  async def set(self, ctx: commands.Context, setting: str, value):
+  async def set(self, ctx: commands.Context, setting: str, value) -> None:
     """
     Changes settings for bot to use
 
@@ -152,27 +152,27 @@ class chatGPT(commands.Cog):
       channelId = int(value)
       channel = self.bot.get_channel(channelId)
       if channel == None:
-          await ctx.reply("That channel does not exist or the bot can not see it.")
+          await ctx.reply("That channel does not exist or the bot can not see it.", ephemeral=True)
           return
       elif channel.guild != ctx.guild:
-          await ctx.reply("That channel isn't in this server...")
+          await ctx.reply("That channel isn't in this server...", ephemeral=True)
           return
       currentChannels: list = await self.config.guild(ctx.guild).channels()
       self.log.info(currentChannels)
       if currentChannels is None:
           self.log.info("Current channel list is empty adding the new channel.")
           newChannels: list = [channelId]
-          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.")
+          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.", ephemeral=True)
           await self.config.guild(ctx.guild).channels.set(newChannels)
           return
       if channelId not in currentChannels:
           self.log.info("Channel is not in list so we add it.")
           currentChannels.append(channelId)
           self.log.info(currentChannels)
-          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.")
+          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.", ephemeral=True)
           await self.config.guild(ctx.guild).channels.set(currentChannels)
           return
-      await ctx.reply("<#" + str(channelId) + "> was already whitelisted.")
+      await ctx.reply("<#" + str(channelId) + "> was already whitelisted.", ephemeral=True)
 
     elif setting == "channelremove":
       if value is discord.TextChannel:
@@ -182,25 +182,25 @@ class chatGPT(commands.Cog):
       try:
           currentChannels.remove(int(value))
           await self.config.guild(ctx.guild).channels.set(currentChannels)
-          await ctx.reply("<#" + str(value) + "> is no longer whitelisted.")
+          await ctx.reply("<#" + str(value) + "> is no longer whitelisted.", ephemeral=True)
       except ValueError:
-          await ctx.reply("That channel was already not in channel list.")
+          await ctx.reply("That channel was already not in channel list.", ephemeral=True)
 
     elif setting == "replyRespond":
         if value is str:
           value = value.lower()
         if value == "true" or value == "1":
             await self.config.guild(ctx.guild).replyRespond.set(True)
-            await ctx.reply("replyRespond is now set to True")
+            await ctx.reply("replyRespond is now set to True", ephemeral=True)
         elif value == "false" or value == "0":
             await self.config.guild(ctx.guild).replyRespond.set(False)
-            await ctx.reply("replyRespond is now set to False")
+            await ctx.reply("replyRespond is now set to False", ephemeral=True)
         else:
-          await ctx.reply("This command only accepts `true` or `false`.")
+          await ctx.reply("This command only accepts `true` or `false`.", ephemeral=True)
 
   @checks.is_owner()
   @chatgpt.command(name="model")
-  async def model(self, ctx: commands.Context, model: str):
+  async def model(self, ctx: commands.Context, model: str) -> None:
     """
     Allows the changing of model chatbot is running. Options are: 0-`text-ada-001` 1-`text-babbage-001` 2-`text-curie-001` 3-`text-davinci-002` 4-`text-davinci-003` current-`shows current model`\n\n
 
@@ -220,16 +220,16 @@ class chatGPT(commands.Cog):
     }
     if model in model_map:
         await self.config.model.set(model_map[model])
-        await ctx.reply("The chatbot model is now set to: `" + model_map[model] + "`")
+        await ctx.reply("The chatbot model is now set to: `" + model_map[model] + "`", ephemeral=True)
     elif model == "current":
         currentModel = await self.config.model()
-        await ctx.reply("The chatbot model is currently set to: " + currentModel)
+        await ctx.reply("The chatbot model is currently set to: " + currentModel, ephemeral=True)
     else:
-        await ctx.reply("That is not a valid model please use `[p]chatgpt model` to see valid models")
+        await ctx.reply("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
   @chatgpt.command(name="tokenlimit")
-  async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
+  async def tokenlimit(self, ctx: commands.Context, tokenLimit: int) -> None:
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Every model has a max cost of 2048 with the exception of the davinci models which have a max of 4000\n\n
     
@@ -247,6 +247,6 @@ class chatGPT(commands.Cog):
 
     if model in model_limits and model_limits[model][0] < tokenLimit <= model_limits[model][1]:
         await self.config.tokenlimit.set(tokenLimit)
-        await ctx.reply("Token limit is now set to " + str(tokenLimit))
+        await ctx.reply("Token limit is now set to " + str(tokenLimit), ephemeral=True)
     else:
-        await ctx.reply("That is not a valid token amount.")
+        await ctx.reply("That is not a valid token amount.", ephemeral=True)
