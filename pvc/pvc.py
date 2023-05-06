@@ -53,7 +53,7 @@ class pvc(commands.Cog):
             voiceChannel = self.bot.get_channel(vcId)
         return voiceChannel
 
-    async def checks(self, id, empty, ctx: commands.Context):
+    async def delete_voice_channel(self, id, empty, ctx):
         channel = self.bot.get_channel(id)
         while empty.done() is not True:
             await asyncio.sleep(60)
@@ -70,6 +70,9 @@ class pvc(commands.Cog):
                 break
             else:
                 pass
+
+    async def checks(self, id, empty, ctx: commands.Context):
+        await self.delete_voice_channel(id, empty, ctx)
 
     def pred(self, emojis, mess1, user: discord.Member):
         return ReactionPredicate.with_emojis(emojis, mess1, user)
@@ -385,6 +388,23 @@ class pvc(commands.Cog):
                 await ctx.reply(f"{user.name} was unmuted in your vc: {voiceChannel.mention}")
             else:
                 await ctx.reply("You have no vc created use /vc create <Name> to create one.", ephemeral=True)
+
+    async def update_channel_id(self, ctx, channelid, guild):
+        x = await self.config.all_members(guild=guild)
+        for vcOwnList, ownDict in x.items():
+            for key, vcId in ownDict.items():
+                if key == "channel_id":
+                    if int(vcId) == int(channelid):
+                        owner = int(vcOwnList)
+                        ownerObj = await self.bot.get_or_fetch_member(guild, owner)
+                        if ownerObj.voice is None or ownerObj.voice.channel.id != channelid:
+                            await ctx.send("{0} has claimed {1}".format(ctx.author.mention, self.bot.get_channel(vcId).mention))
+                            await self.bot.get_channel(vcId).set_permissions(ctx.author, view_channel=True, read_messages=True, send_messages=True, read_message_history=True, use_voice_activation=True, stream=True, speak=True, connect=True)
+                            await self.config.member(ownerObj).channel_id.set(0)
+                            await self.config.member(ctx.author).channel_id.set(channelid)
+                            break
+                        else:
+                            await ctx.send("<@{0}> is still in their vc you can only run this when they have left".format(owner))
 
     @vc.command(name="claim")
     async def claim(self, ctx: commands.Context) -> None:

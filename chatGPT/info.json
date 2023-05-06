@@ -1,0 +1,23 @@
+{
+    "name": "chatGPT",
+    "short": "chatGPT",
+    "description": "Team Punistic red cog that allows a user to communicate with chatGPT",
+    "end_user_data_statement": "This cog does persistently store data or meta-data about users. This is required to keep continuity between users and the bot, it is also used in storing responses >2000 characters to send to the user.",
+    "install_msg": "Congrats",
+    "author": [
+        "Nado"
+    ],
+    "required_cogs": {},
+    "requirements": ["inflect==6.0.0", "requests", "numpy", "openai>=0.26.4"],
+    "tags": [
+        "job",
+        "work",
+        "occupations",
+        "economy",
+        "Tpun"
+    ],
+    "min_bot_version": "3.3.10",
+    "hidden": false,
+    "disabled": false,
+    "type": "COG"
+}

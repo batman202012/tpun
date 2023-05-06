@@ -16,7 +16,7 @@
 
 <div id="workflow" align="center">
 
-[![Python application](https://github.com/batman202012/tpun/actions/workflows/main.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/main.yml) [![CodeQL](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml/badge.svg?branch=beta-testing)](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml)[![Requirements Status](https://requires.io/github/batman202012/tpun/requirements.svg?branch=beta-testing)](https://requires.io/github/batman202012/tpun/requirements/?branch=beta-testing)[![Maintainability](https://api.codeclimate.com/v1/badges/ccf09712a5af256e1fc6/maintainability?branch=beta-testing)](https://codeclimate.com/github/batman202012/tpun/maintainability)
+[![Python application](https://github.com/batman202012/tpun/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/batman202012/tpun/actions/workflows/main.yml) [![CodeQL](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/batman202012/tpun/actions/workflows/codeql-analysis.yml)[![Maintainability](https://api.codeclimate.com/v1/badges/ccf09712a5af256e1fc6/maintainability?branch=master)](https://codeclimate.com/github/batman202012/tpun/maintainability)
 
 </div>
 
@@ -89,6 +89,14 @@
 <br />
 
 - [ServerHud](#serverhud)
+
+<br />
+
+- [Occupations](#occupations)
+
+<br />
+
+- [ChatGPT](#chatgpt)
 
 <br />
 <br />
@@ -203,8 +211,7 @@
 ##### Invites a 'user' to join your private voice channel
 
 <br />
-<br /> 
-<h5>
+<br />
 
 - `
 [p]vc limit <int>
@@ -544,6 +551,165 @@
 `
 
 ##### Tests the serverhud for various events 'join' and 'leave'
+
+<br />
+<br />
+
+
+<div id="occupations" align="center">
+
+## Occupations
+
+<br />
+
+### A Cog for giving your server members jobs, depending on the salary of their job the make money for time spend in vc
+#### This cog uses the Adzuna Api so an app id and api key is required and can be obtained from the dashboard at: https://developer.adzuna.com/login and set using `[p]set api adzuna app_id,<app id> api_key,<api key>`
+
+</div>
+
+#### The amount made for time spent in vc is
+
+##### pay = (timespent[in seconds] / 2,592,000[one month in seconds]) * salary[Members Salary] * [Salary Scalar, default=1.0] * 0.27
+
+<div align="right">
+
+[top](#coglist)
+
+</div>
+
+<br /> 
+
+- `
+[p]job board
+`
+
+##### Displays the job board that gives the user 4 random jobs top choose from
+
+<br />
+<br />
+
+- `
+[p]job current
+`
+
+##### Displays the user's current job
+
+<br />
+<br />
+
+- `
+[p]job quit
+`
+
+##### User quits their job
+
+<br />
+<br />
+
+- `
+[p]job maxsalary <salary>
+`
+
+##### Sets the max salary for the guild to `salary`
+
+<br />
+<br />
+
+- `
+[p]job chancescalar <scalar>
+`
+
+##### Sets the chance scalar for the guild to `scalar`
+##### The closer to 0 the more likely, the higher than 1 the less likely
+
+<br />
+<br />
+
+- `
+[p]job cooldown <cooldown in seconds>
+`
+
+##### Sets the cooldown for `[p]job board` for the guild to `cooldown`
+
+<br />
+<br />
+
+- `
+[p]job settings
+`
+
+##### Displays current guild settings
+
+<br />
+<br />
+
+<div id="chatgpt" align="center">
+
+## ChatGPT
+
+<br />
+
+### A cog to allow users to communicate with openAI's ChatGPT bot through discord
+#### This cog uses an OpenAI api key which can be obtained from: https://beta.openai.com/account/api-keys and set using `[p]set api openai api_key,<api key>`
+
+</div>
+
+<div align="right">
+
+[top](#coglist)
+
+</div>
+
+<br /> 
+
+- `
+[p]chatgpt chat <query>
+`
+
+##### Sends text input to chatGPT
+
+<br /> 
+
+- `
+[p]chatgpt set <setting> <value>
+`
+
+#### Changes settings for chatgpt cog, valid settings are:
+##### *`channeladd` (adds a channel to whitelist that the bot will respond to every message in)
+##### *`channelremove` (removes a channel from the whitelist)
+##### *`replyRespond` (toggles the bot responding in any channel regardless of whitelist status where it is mentioned)
+
+##### For channeladd/channelremove the value must be the id of the channel. 
+##### For replyRespond you may use "true" and "false" or 1 and 0
+
+<br />
+ 
+- `
+[p]chatgpt channellist
+`
+
+##### Lists the channels currently in the whitelist
+
+<br /> 
+
+- `
+[p]chatGPT model <value>
+`
+
+##### Changes the model the bot is using. Available values are 0-`text-ada-001` 1-`text-babbage-001` 2-`text-curie-001` 3-`text-davinci-002` 4-`text-davinci-002-render` 5-`text-davinci-003` current-`shows current model`
+
+##### For more information on what this means please check out: https://beta.openai.com/docs/models/gpt-3
+
+<br /> 
+
+- `
+[p]chatGPT tokenlimit <value>
+`
+
+##### Changes the  max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Every model has a max cost of 2048 with the exception of the davinci models which have a max of 4000
+
+##### For more information on tokens check out: https://beta.openai.com/docs/models/gpt-3
+##### For token prices also see: https://openai.com/api/pricing/
 
 <br />
 <br />
