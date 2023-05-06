@@ -18,68 +18,53 @@ class rep(commands.Cog):
             self,
             identifier=365398642334498816
         )
-        default_global = {
-            "reputation": {}
-        }
-        self.config.register_global(**default_global)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if bool(re.search("thank", message.content, flags=re.I | re.X)) and message.mentions is not None:
             users = message.mentions
             names = []
-            found: bool = False
-            for user in users:
-                names.append(user.mention)
-            x = await self.config.reputation()
             for user in users:
                 id = user.id
-                for userId, userRep in x.items():
-                    if user.id != message.author.id and userId == str(id):
-                        currentRep = userRep + 1
-                        newWrite = {id: currentRep}
-                        await message.channel.send("**+rep** {0} you now have: {1} Rep".format(user.name, str(currentRep)))
-                        found = True
-                        break
-                if not found:
-                    newWrite = {id: 1}
-                    await message.channel.send("**+rep** {0} you now have: {1} Rep".format(user.name, str(1)))
-                x.pop(str(id), None)
-                x.update(newWrite)
-            await self.config.reputation.set(x)
+                names.append(user.mention)
+                if user.id != message.author.id:
+                    currentRep = await self.config.member(user).reputation()
+                    if currentRep is None:
+                        currentRep = 0
+                    newWrite = currentRep + 1
+                    await message.reply("**+rep** {0} you now have: {1} Rep".format(user.name, str(currentRep)))
+                    await self.config.member(user).reputation.set(newWrite)
 
     @commands.mod()
-    @commands.command(name="repremove")
-    async def repremove(self, ctx: commands.Context, user: discord.Member, amount: int):
+    @commands.hybrid_command(name="repremove", with_app_command=True)
+    async def repremove(self, ctx: commands.Context, user: discord.Member, amount: int) -> None:
         """
         Removes a amount from a users reputation
         """
         newWrite = None
-        x = await self.config.reputation()
-        for userId, userRep in x.items():
-            if userId == str(user.id):
-                currentRep = userRep - amount
-                newWrite = {user.id: currentRep}
-                await ctx.send("**-rep** {0} took away {1} rep from {2}. They now have {3}"
-                    .format(ctx.author.name, amount, user.name, currentRep)
-                )
-        if newWrite is not None:
-            x.pop(str(user.id), None)
-            x.update(newWrite)
+        currentRep = await self.config.member(user).reputation()
+        if currentRep is not None and currentRep != 0:
+            newWrite = currentRep - amount
+            await ctx.reply("**-rep** {0} took away {1} rep from {2}. They now have {3}"
+                .format(ctx.author.name, amount, user.name, currentRep)
+            )
+            if newWrite is not None:
+                if newWrite >= 0:
+                    await self.config.member(user).reputation.set(newWrite)
+                else:
+                    await self.config.member(user).reputation.set(0)
+            else:
+                self.log.warning(f"Failed to write reputation for {user.name}")
         else:
-            await ctx.send("This user already has no reputation")
-        await self.config.reputation.set(x)
+            await ctx.reply("You can't take reputation away from someone who doesn't have one.", ephemeral=True)
 
-    @commands.command(name="checkrep")
-    async def checkrep(self, ctx: commands.Context, user: discord.Member):
+    @commands.hybrid_command(name="checkrep", with_app_command=True)
+    async def checkrep(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Displays a user's reputation
         """
-        userFound = False
-        x = await self.config.reputation()
-        for userId, userRep in x.items():
-            if userId == str(user.id):
-                await ctx.send("{0} has {1} reputation".format(user.name, userRep))
-                userFound = True
-        if userFound is False:
-            await ctx.send("{0} doesn't have a reputation.".format(user.name))
+        currentRep = await self.config.member(user).reputation()
+        if currentRep is not None and currentRep != 0:
+            await ctx.reply("{0} has {1} reputation".format(user.name, currentRep))
+        else:
+            await ctx.reply("{0} doesn't have a reputation.".format(user.name))

@@ -2,9 +2,11 @@ from typing import Literal
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
+from discord import app_commands
 import discord
 import asyncio
 import logging
+import pytz
 from datetime import datetime, timedelta
 RequestType = Literal["discord_deleted_user", "owner", "user", "user_strict"]
 
@@ -145,27 +147,29 @@ class serverhud(commands.Cog):
                 await asyncio.sleep(15)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
+        utc=pytz.UTC
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member: discord.Member):
+        utc=pytz.UTC
         guild = member.guild
         if not member.bot:
             memberList = guild.members
             await self.config.guild(guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
         await self.members(guild)
         await self.boosters(guild)
 
     @commands.Cog.listener()
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         await asyncio.sleep(30)
         if before.guild.premium_subscriber_role not in before.roles and after.guild.premium_subscriber_role in after.roles:
             await self.boosters(before.guild)
@@ -173,7 +177,7 @@ class serverhud(commands.Cog):
             await self.boosters(before.guild)
 
 
-    @commands.group(name="serverhud")
+    @commands.hybrid_group(name="serverhud", with_app_command=True)
     async def serverhud(self, ctx):
         """
         Base command for all server hud settings
@@ -182,224 +186,192 @@ class serverhud(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="setchannel")
-    async def setchannel(self, ctx, type: str, channel: int):
+    @app_commands.choices(type=[
+        app_commands.Choice(name="New Member Count", value="newmem"),
+        app_commands.Choice(name="Total Member Count", value="totmem"),
+        app_commands.Choice(name="Total Bot Count", value="totbot"),
+        app_commands.Choice(name="True Member Count", value="truemem"),
+        app_commands.Choice(name="Booster Count", value="booster"),
+        app_commands.Choice(name="Booster Bar", value="boosterbar")
+    ])
+    async def setchannel(self, ctx: commands.Context, type: app_commands.Choice[str], channel: discord.VoiceChannel) -> None:
         """
         Sets the channel info type and location
 
         The command syntax is [p]serverhud setchannel <type> <channel id>
         For a list of channel types use [p]serverhud types
         """
-
-        types = ["newmem", "totmem", "totbot", "truemem", "booster", "boosterbar"]
-        for x in types:
-            if x == type:
-                if x == "newmem":
-                    newmemDict: dict = await self.config.guild(ctx.guild).newmem()
-                    newmemDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                    await ctx.send("The new member count channel has been set to <#{}>".format(channel))
-                elif x == "totmem":
-                    totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                    totmemDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                    await ctx.send("The total member count channel has been set to <#{}>".format(channel))
-                elif x == "totbot":
-                    totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                    totbotDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                    await ctx.send("The total bot count channel has been set to <#{}>".format(channel))
-                elif x == "truemem":
-                    truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                    truememDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).truemem.set(truememDict)
-                    await ctx.send("The True member count channel has been set to <#{}>".format(channel))
-                elif x == "booster":
-                    boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                    boosterDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).booster.set(boosterDict)
-                    await ctx.send("The Booster count channel has been set to <#{}>".format(channel))
-                elif x == "boosterbar":
-                    boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
-                    boosterBarDict.update({"channel": channel})
-                    await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-                    await ctx.send("The Booster count channel has been set to <#{}>".format(channel))
-            else:
-                pass
-        pass
+        if type.value == "newmem":
+            newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+            newmemDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).newmem.set(newmemDict)
+            await ctx.reply(f"The new member count channel has been set to <#{channel.id}>", ephemeral=True)
+        elif type.value == "totmem":
+            totmemDict: dict = await self.config.guild(ctx.guild).totmem()
+            totmemDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).totmem.set(totmemDict)
+            await ctx.reply(f"The total member count channel has been set to <#{channel.id}>", ephemeral=True)
+        elif type.value == "totbot":
+            totbotDict: dict = await self.config.guild(ctx.guild).totbot()
+            totbotDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).totbot.set(totbotDict)
+            await ctx.reply(f"The total bot count channel has been set to <#{channel.id}>", ephemeral=True)
+        elif type.value == "truemem":
+            truememDict: dict = await self.config.guild(ctx.guild).truemem()
+            truememDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).truemem.set(truememDict)
+            await ctx.reply(f"The True member count channel has been set to <#{channel.id}>", ephemeral=True)
+        elif type.value == "booster":
+            boosterDict: dict = await self.config.guild(ctx.guild).booster()
+            boosterDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).booster.set(boosterDict)
+            await ctx.reply(f"The Booster count channel has been set to <#{channel.id}>", ephemeral=True)
+        elif type.value == "boosterbar":
+            boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
+            boosterBarDict.update({"channel": channel.id})
+            await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
+            await ctx.reply(f"The Booster count channel has been set to <#{channel.id}>", ephemeral=True)
+        else:
+            pass
 
     @commands.guildowner_or_permissions()
-    @serverhud.command(name="setprefix")
-    async def setprefix(self, ctx, type: str, *, prefix: str):
-        """
-        Sets the prefix for this type of info channel
-
-        For a list of channel types use [p]serverhud types
-        """
-        types = ["newmem", "totmem", "totbot", "truemem", "booster", "boosterbar"]
-        for x in types:
-            if x == type:
-                if x == "newmem":
-                    newmemDict: dict = await self.config.guild(ctx.guild).newmem()
-                    newmemDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                    await ctx.send("The new member count prefix has been set to {}".format(prefix))
-                elif x == "totmem":
-                    totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                    totmemDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                    await ctx.send("The total member count prefix has been set to {}".format(prefix))
-                elif x == "totbot":
-                    totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                    totbotDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                    await ctx.send("The total bot count prefix has been set to {}".format(prefix))
-                elif x == "truemem":
-                    truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                    truememDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).truemem.set(truememDict)
-                    await ctx.send("The True member count prefix has been set to {}".format(prefix))
-                elif x == "booster":
-                    boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                    boosterDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).booster.set(boosterDict)
-                    await ctx.send("The Booster count prefix has been set to {}".format(prefix))
-                elif x == "boosterbar":
-                    boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
-                    boosterBarDict.update({"prefix": prefix})
-                    await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-                    await ctx.send("The Booster Bar prefix has been set to {}".format(prefix))
+    @serverhud.command(name="set")
+    @app_commands.choices(type=[
+        app_commands.Choice(name="New Member Count", value="newmem"),
+        app_commands.Choice(name="Total Member Count", value="totmem"),
+        app_commands.Choice(name="Total Bot Count", value="totbot"),
+        app_commands.Choice(name="True Member Count", value="truemem"),
+        app_commands.Choice(name="Booster Count", value="booster")
+    ], subcommand=[
+        app_commands.Choice(name="Channel Prefix", value="setprefix"),
+        app_commands.Choice(name="Channel Suffix", value="setsuffix"),
+        app_commands.Choice(name="Channel Name", value="setname")
+    ])
+    async def setting(self, ctx: commands.Context, subcommand: app_commands.Choice[str], type: app_commands.Choice[str], *, text: str) -> None:
+        if type.value == "newmem":
+            newmemDict: dict = await self.config.guild(ctx.guild).newmem()
+            if subcommand.value == "setprefix":
+                newmemDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                newmemDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                newmemDict.update({"name": text})
+                setting = "name"
             else:
-                pass
-        pass
-
-    @commands.guildowner_or_permissions()
-    @serverhud.command(name="setsuffix")
-    async def setsuffix(self, ctx, type: str, *, suffix: str):
-        """
-        Sets the suffix for this type of info channel
-
-        For a list of channel types use [p]serverhud types
-        """
-        types = ["newmem", "totmem", "totbot", "truemem", "booster"]
-        for x in types:
-            if x == type:
-                if x == "newmem":
-                    newmemDict: dict = await self.config.guild(ctx.guild).newmem()
-                    newmemDict.update({"suffix": suffix})
-                    await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                    await ctx.send("The new member count suffix has been set to {}".format(suffix))
-                elif x == "totmem":
-                    totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                    totmemDict.update({"suffix": suffix})
-                    await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                    await ctx.send("The total member count suffix has been set to {}".format(suffix))
-                elif x == "totbot":
-                    totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                    totbotDict.update({"suffix": suffix})
-                    await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                    await ctx.send("The total bot count suffix has been set to {}".format(suffix))
-                elif x == "truemem":
-                    truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                    truememDict.update({"suffix": suffix})
-                    await self.config.guild(ctx.guild).truemem.set(truememDict)
-                    await ctx.send("The True member count suffix has been set to {}".format(suffix))
-                elif x == "booster":
-                    boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                    boosterDict.update({"suffix": suffix})
-                    await self.config.guild(ctx.guild).booster.set(boosterDict)
-                    await ctx.send("The Booster count prefix has been set to {}".format(suffix))
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).newmem.set(newmemDict)
+            await ctx.reply(f"The new member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "totmem":
+            totmemDict: dict = await self.config.guild(ctx.guild).totmem()
+            if subcommand.value == "setprefix":
+                totmemDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                totmemDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                totmemDict.update({"name": text})
+                setting = "name"
             else:
-                pass
-        pass
-
-    @commands.guildowner_or_permissions()
-    @serverhud.command(name="setname")
-    async def setname(self, ctx, type: str, *, name: str):
-        """
-        Sets the name for this type of info channel
-
-        For a list of channel types use [p]serverhud types
-        """
-        types = ["newmem", "totmem", "totbot", "truemem", "booster"]
-        for x in types:
-            if x == type:
-                if x == "newmem":
-                    newmemDict: dict = await self.config.guild(ctx.guild).newmem()
-                    newmemDict.update({"name": name})
-                    await self.config.guild(ctx.guild).newmem.set(newmemDict)
-                    await ctx.send("The new member count name has been set to {}".format(name))
-                elif x == "totmem":
-                    totmemDict: dict = await self.config.guild(ctx.guild).totmem()
-                    totmemDict.update({"name": name})
-                    await self.config.guild(ctx.guild).totmem.set(totmemDict)
-                    await ctx.send("The total member count name has been set to {}".format(name))
-                elif x == "totbot":
-                    totbotDict: dict = await self.config.guild(ctx.guild).totbot()
-                    totbotDict.update({"name": name})
-                    await self.config.guild(ctx.guild).totbot.set(totbotDict)
-                    await ctx.send("The total bot count name has been set to {}".format(name))
-                elif x == "truemem":
-                    truememDict: dict = await self.config.guild(ctx.guild).truemem()
-                    truememDict.update({"name": name})
-                    await self.config.guild(ctx.guild).truemem.set(truememDict)
-                    await ctx.send("The True member count name has been set to {}".format(name))
-                elif x == "booster":
-                    boosterDict: dict = await self.config.guild(ctx.guild).booster()
-                    boosterDict.update({"name": name})
-                    await self.config.guild(ctx.guild).booster.set(boosterDict)
-                    await ctx.send("The Booster count prefix has been set to {}".format(name))
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).totmem.set(totmemDict)
+            await ctx.reply(f"The total member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "totbot":
+            totbotDict: dict = await self.config.guild(ctx.guild).totbot()
+            if subcommand.value == "setprefix":
+                totbotDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                totbotDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                totbotDict.update({"name": text})
+                setting = "name"
             else:
-                pass
-        pass
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).totbot.set(totbotDict)
+            await ctx.reply(f"The total bot count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "truemem":
+            truememDict: dict = await self.config.guild(ctx.guild).truemem()
+            if subcommand.value == "setprefix":
+                truememDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                truememDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                truememDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).truemem.set(truememDict)
+            await ctx.reply(f"The True member count {setting} has been set to {text}", ephemeral=True)
+        elif type.value == "booster":
+            boosterDict: dict = await self.config.guild(ctx.guild).booster()
+            if subcommand.value == "setprefix":
+                boosterDict.update({"prefix": text})
+                setting = "prefix"
+            elif subcommand.value == "setsuffix":
+                boosterDict.update({"suffix": text})
+                setting = "suffix"
+            elif subcommand.value == "setname":
+                boosterDict.update({"name": text})
+                setting = "name"
+            else:
+                await ctx.reply("That's not a valid serverhud subcommand")
+            await self.config.guild(ctx.guild).booster.set(boosterDict)
+            await ctx.reply(f"The Booster count {setting} has been set to {text}", ephemeral=True)          
+        else:
+            self.log.warning("Not a valid serverhud type")
+            await ctx.reply("That's not a valid serverhud type")
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="setstyle")
-    async def setstyle(self, ctx, type, *, style: str):
+    @app_commands.choices(type=[
+        app_commands.Choice(name="Full", value="full"),
+        app_commands.Choice(name="Empty", value="empty")
+    ])
+    async def setstyle(self, ctx: commands.Context, type: app_commands.Choice[str], *, style: str) -> None:
         """
         Set's the style of the booster bar
 
         Valid types are full and empty
         """
-        if type == "full":
+        if type.value == "full":
             boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
             boosterBarDict.update({"stylefull": style})
             await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-            await ctx.send("The Booster Bar full style has been set to {}".format(style))
-        elif type == "empty":
+            await ctx.reply(f"The Booster Bar full style has been set to {style}", ephemeral=True)
+        elif type.value == "empty":
             boosterBarDict: dict = await self.config.guild(ctx.guild).boosterbar()
             boosterBarDict.update({"styleempty": style})
             await self.config.guild(ctx.guild).boosterbar.set(boosterBarDict)
-            await ctx.send("The Booster Bar empty style has been set to {}".format(style))
+            await ctx.reply(f"The Booster Bar empty style has been set to {style}", ephemeral=True)
         else:
-            await ctx.send("That is not a valid booster bar type")
-
-    @commands.guildowner_or_permissions()
-    @serverhud.command(name="types")
-    async def types(self, ctx):
-        """
-        Lists of the different types of channels you can set
-
-        Use [p]serverhud setchannel <type> <channel mention>
-        """
-        mess = "The avaible types of channels are: new members from today (newmem), total members (totmem), total bots (totbot), True Members (truemem), Server Boosters Count (booster), Booster Bar (boosterbar)"
-        await ctx.send(mess)
-        pass
+            await ctx.reply("That is not a valid booster bar type", ephemeral=True)
 
     @commands.guildowner_or_permissions()
     @serverhud.command(name="test")
-    async def test(self, ctx, event):
+    @app_commands.choices(event=[
+        app_commands.Choice(name="Join/Leave", value="join")
+    ])
+    async def test(self, ctx: commands.Context, event: app_commands.Choice[str]) -> None:
         """
         Test the cog to insure functionality
 
         You can test different events using this command:
         join, leave
         """
-        if event == "join" or event == "leave":
+        await ctx.reply("Running test, this may take a while", ephemeral=True)
+        utc=pytz.UTC
+        if event.value == "join":
             memberList = ctx.guild.members
             await self.config.guild(ctx.guild).truememcount.set(len([m for m in memberList if not m.bot]))
-            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > datetime.today() - timedelta(days=1)]))
+            await self.config.guild(ctx.guild).newmemcount.set(len([m for m in memberList if m.joined_at > utc.localize(datetime.utcnow() - timedelta(days=1))]))
             await self.members(ctx.guild)
             await self.boosters(ctx.guild)
-            await ctx.send("Test of the member join/leave event.")
+            await ctx.send(f"{event.value} event was tested successfully.", ephemeral=True)
         else:
-            await ctx.send("That is not a valid event do [p]help serverhud test for a list of events")
+            await ctx.send("That is not a valid event do [p]help serverhud test for a list of events", ephemeral=True)

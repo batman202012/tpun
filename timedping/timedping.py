@@ -39,17 +39,16 @@ class timedping(commands.Cog):
                         newTempo = {str(role): int(time.time() + cooldown)}
                         self.tempo.update(newTempo)
                     elif self.tempo[role] > time.time():
-                        await message.reply("There is a {0} second cooldown in between uses. There is <t:{1}:R>"
-                            .format(str(cooldown), int(self.tempo[role]))
-                            + "remaining in the cooldown"
+                        await message.reply(f"There is a {str(cooldown)} second cooldown in between uses. There is <t:{int(self.tempo[role])}:R> remaining in the cooldown",
+                        ephemeral=True
                         )
                     else:
                         await message.reply("<@&{0}>".format(int(role)))
                         newTempo = {str(role): int(time.time() + cooldown)}
                         self.tempo.update(newTempo)
 
-    @commands.group(name="tping")
-    async def tping(self, ctx):
+    @commands.hybrid_group(name="tping", with_app_command=True)
+    async def tping(self, ctx: commands.Context):
         """
         Base command for all timed ping commands
         """
@@ -57,7 +56,7 @@ class timedping(commands.Cog):
 
     @commands.guildowner_or_permissions()
     @tping.command(name="add")
-    async def add(self, ctx: commands.Context, role: discord.Role, cooldown: int):
+    async def add(self, ctx: commands.Context, role: discord.Role, cooldown: int) -> None:
         """
         Adds a role to the timed ping list
         """
@@ -66,11 +65,11 @@ class timedping(commands.Cog):
         pingableRoles = await self.config.guild(guild).pingableroles()
         pingableRoles.update(nC)
         await self.config.guild(guild).pingableroles.set(pingableRoles)
-        await ctx.send("{0} was added to the Timed Ping List with cooldown {1} seconds".format(role.mention, cooldown))
+        await ctx.send(f"{role.mention} was added to the Timed Ping List with cooldown {cooldown} seconds", ephemeral=True)
 
     @commands.guildowner_or_permissions()
     @tping.command(name="remove")
-    async def remove(self, ctx: commands.Context, role: discord.Role):
+    async def remove(self, ctx: commands.Context, role: discord.Role) -> None:
         """
         Removes a role from the timed ping list
         """
@@ -78,11 +77,11 @@ class timedping(commands.Cog):
         pingableRoles = await self.config.guild(guild).pingableroles()
         pingableRoles.pop(str(role.id), None)
         await self.config.guild(guild).pingableroles.set(pingableRoles)
-        await ctx.send("{0} was removed from the Timed Ping List".format(role.mention))
+        await ctx.send(f"{role.mention} was removed from the Timed Ping List", ephemeral=True)
 
     @commands.guildowner_or_permissions()
     @tping.command(name="list")
-    async def list(self, ctx: commands.Context):
+    async def list(self, ctx: commands.Context) -> None:
         """
         Lists all the timed ping roles for the server
         """
@@ -90,10 +89,10 @@ class timedping(commands.Cog):
         roles = ""
         pingableRoles = await self.config.guild(guild).pingableroles()
         for role, cooldown in pingableRoles.items():
-            roles = roles + "<@&{0}> with cooldown {1} seconds \n".format(role, cooldown)
+            roles = roles + f"<@&{role}> with cooldown {cooldown} seconds \n"
         if roles != "":
-            mess1 = await ctx.send(roles)
+            mess1 = await ctx.send(roles, ephemeral=True)
         else:
-            mess1 = await ctx.send("There are no pingable roles set up yet")
+            mess1 = await ctx.reply("There are no pingable roles set up yet", ephemeral=True)
         await asyncio.sleep(120)
         await mess1.delete()

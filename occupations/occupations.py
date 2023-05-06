@@ -4,9 +4,10 @@ from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
-from redbot.core import bank
+from redbot.core import bank, data_manager
 from datetime import datetime
 from dateutil import tz, parser
+from discord import app_commands
 import discord
 import requests
 import logging
@@ -84,7 +85,7 @@ class occupations(commands.Cog):
             #set that occupation to users job
             await self.config.member(ctx.author).title.set(jobName)
             await self.config.member(ctx.author).salary.set(jobSalary)
-            await mess.reply("Congrats you got the job as `{0}`, your new salary is `{1}`".format(jobName, jobSalary))
+            await mess.reply(f"Congrats you got the job as `{jobName}`, your new salary is `{jobSalary}`")
         else:
             await mess.reply("I'm sorry but you didn't qualify for the job. Guess it's back to searching.")
         #start cooldown for job searching
@@ -113,14 +114,14 @@ class occupations(commands.Cog):
                 secondsInVc = (endtime - starttime).total_seconds()
                 #pay user based on how long they were in vc
                 pay = int(((secondsInVc / (60*60*24*30)) * int(salary) * salaryScalar) * 0.27)
-                self.log.info("{0} was paid {1} currency for being in vc for {2} minutes".format(member.display_name, str(pay), (secondsInVc/60)))
+                self.log.info(f"{member.display_name} was paid {str(pay)} currency for being in vc for {(secondsInVc/60)} minutes")
                 await bank.deposit_credits(member, pay)
             elif before.channel is not None and after.channel is not None:
                 pass
             else:
                 self.log.warning("Something went wrong in on_voice_update")
 
-    @commands.group(name="job")
+    @commands.hybrid_group(name="job", with_app_command=True)
     async def job(self, ctx: commands.Context):
         """
         Base command for occupation related commands
@@ -128,7 +129,7 @@ class occupations(commands.Cog):
         pass
 
     @job.command(name="board")
-    async def jobboard(self, ctx: commands.Context):
+    async def jobboard(self, ctx: commands.Context) -> None:
         """
         Displays the job board with a list of jobs
         """
@@ -143,7 +144,7 @@ class occupations(commands.Cog):
         if cooldown.timestamp() + timediff < datetime.utcnow().timestamp():
             adzuna_keys = await self.bot.get_shared_api_tokens("adzuna")
             if adzuna_keys.get("app_id") is None or adzuna_keys.get("api_key") is None:
-                return await ctx.send("The bot owner still needs to set the adzuna app id and secret using `[p]set api adzuna app_id,<app id> api_key,<api key>`")
+                return await ctx.reply("The bot owner still needs to set the adzuna app id and secret using using `[p]set api adzuna app_id,<app id> api_key,<api key>`")
             else:
                 pass
             #use api to get random jobs, if not possible use List
@@ -185,7 +186,7 @@ class occupations(commands.Cog):
                 emoji = str(result[0])
                 await self.jobChooser(ctx, emoji, mess, titleList)
             except asyncio.TimeoutError:
-                await ctx.send("You didn't go to any of your interviews. All your possible employers have found other workers. Back to applying.")
+                await ctx.reply("You didn't go to any of your interviews. All your possible employers have found other workers. Back to applying.", ephemeral=True)
                 time_format = '%Y %m %d %H:%M:%S %z'
                 utc_zone = tz.gettz('UTC')
                 timeNow = datetime.utcnow()
@@ -193,20 +194,20 @@ class occupations(commands.Cog):
             else:
                 pass
         else:
-            await ctx.send("None of the jobs you've applied to have replied yet. Try again <t:{0}:R>".format(int(calendar.timegm(cooldown.timetuple()) + timediff)))
+            await ctx.reply(f"None of the jobs you've applied to have replied yet. Try again <t:{int(calendar.timegm(cooldown.timetuple()) + timediff)}:R>", ephemeral=True)
 
     async def random_generator(self, jobList):
         return random.randint(0, (len(jobList)-1))
 
     @job.command(name="current")
-    async def currentjob(self, ctx: commands.Context):
+    async def currentjob(self, ctx: commands.Context) -> None:
         """
         Displays the user's current job
         """
         title = await self.config.member(ctx.author).title()
         salary = await self.config.member(ctx.author).salary()
         if title != None:
-            await ctx.reply("Your current job is `{0}` and your salary is `{1}`".format(title, str(salary)))
+            await ctx.reply(f"Your current job is `{title}` and your salary is `{str(salary)}`")
         else:
             await ctx.reply("You do not have a job yet.")
 
@@ -219,82 +220,99 @@ class occupations(commands.Cog):
         await self.config.member(ctx.author).salary.set(None)
         await ctx.reply("You quit your job. Better search for a new one soon...")
 
-    @commands.guildowner_or_permissions()
-    @job.command(name="maxsalary")
-    async def maxsalary(self, ctx: commands.Context, salary: int = 10000):
-        """
-        Command for setting the max salary
-        """
-        await self.config.guild(ctx.guild).maxsalary.set(salary)
-        wages = [20000, 40000, 75000, 100000, 125000, 150000]
-        chanceScalar = await self.config.guild(ctx.guild).chancescalar()
-        message = "The max salary was set to `{0}`".format(salary)
-        for wage in wages:
-            chance = 100 * (1 - ((wage / salary) * chanceScalar))
-            if chance < 0:
-                chance = 0
-            message = message + "\nThe current chance to get a `{0}` salary job is `{1}%`".format(wage, chance)
-        await ctx.reply(message)
 
     @commands.guildowner_or_permissions()
-    @job.command(name="chancescalar")
-    async def chancescalar(self, ctx: commands.Context, scalar: float = 1.0):
-        """
-        Command for setting the scalar for chances of getting a job
+    @job.command(name="settings",)
+    @app_commands.choices(subcommand=[
+        app_commands.Choice(name="Max Salary", value="maxsalary"),
+        app_commands.Choice(name="Chance Scalar", value="chancescalar"),
+        app_commands.Choice(name="Cooldown", value="cooldown"),
+        app_commands.Choice(name="Salary Scalar", value="salaryscalar"),
+        app_commands.Choice(name="current", value="current")
+    ])
+    @app_commands.describe(subcommand="This is the setting you wish to change")
+    async def settings(self, ctx: commands.Context, subcommand: app_commands.Choice[str], setting: float = None):
 
-        The closer to 0 the more likely, the higher than 1 the less likely
-        """
-        await self.config.guild(ctx.guild).chancescalar.set(scalar)
-        wages = [20000, 40000, 75000, 100000, 125000, 150000]
-        maxsalary = await self.config.guild(ctx.guild).maxsalary()
-        message = "The chance scalar was set to `{0}`".format(scalar)
-        for wage in wages:
-            chance = 100 * (1 - ((wage / maxsalary) * scalar))
-            if chance < 0:
-                chance = 0
-            message = message + "\nThe current chance to get a `{0}` salary job is `{1}%`".format(wage, chance)
-        await ctx.reply(message)
+        async def maxsalary(self, ctx: commands.Context, setting: float = 10000) -> None:
+            """
+            Command for setting the max salary
+            """
+            await self.config.guild(ctx.guild).maxsalary.set(int(setting))
+            wages = [20000, 40000, 75000, 100000, 125000, 150000]
+            chanceScalar = await self.config.guild(ctx.guild).chancescalar()
+            message = "The max salary was set to `{0}`".format(int(setting))
+            for wage in wages:
+                chance = 100 * (1 - ((wage / int(setting)) * chanceScalar))
+                if chance < 0:
+                    chance = 0
+                message = message + f"\nThe current chance to get a `{wage}` salary job is `{chance}%`"
+            await ctx.reply(message)
 
-    @commands.guildowner_or_permissions()
-    @job.command(name="cooldown")
-    async def cooldown(self, ctx: commands.Context, seconds: float = 1.0):
-        """
-        Command for setting the cooldown
-        """
-        await self.config.guild(ctx.guild).timediff.set(seconds)
-        await ctx.reply("The job search cooldown was set to `{0}` seconds.".format(seconds))
+        async def chancescalar(self, ctx: commands.Context, setting: float = 1.0) -> None:
+            """
+            Command for setting the scalar for chances of getting a job
 
-    @commands.guildowner_or_permissions()
-    @job.command(name="salaryscalar")
-    async def salaryscalar(self, ctx: commands.Context, scalar: float = 1.0):
-        """
-        Command for setting the salary scalar
+            The closer to 0 the more likely, the higher than 1 the less likely
+            """
+            await self.config.guild(ctx.guild).chancescalar.set(setting)
+            wages = [20000, 40000, 75000, 100000, 125000, 150000]
+            maxsalary = await self.config.guild(ctx.guild).maxsalary()
+            message = "The chance scalar was set to `{0}`".format(setting)
+            for wage in wages:
+                chance = 100 * (1 - ((wage / maxsalary) * setting))
+                if chance < 0:
+                    chance = 0
+                message = message + f"\nThe current chance to get a `{wage}` salary job is `{chance}%`"
+            await ctx.reply(message)
 
-        This multiplies the pay by a number
-        """
-        await self.config.guild(ctx.guild).salaryscalar.set(scalar)
-        wages = [20000, 40000, 75000, 100000, 125000, 150000]
-        maxsalary = await self.config.guild(ctx.guild).maxsalary()
-        message = "The salary scalar was set to `{0}`".format(scalar)
-        for wage in wages:
-            salary = int(((3600 / (60*60*24*30)) * int(wage) * scalar) * 0.27)
-            message = message + "\nThe hourly pay of a {0} salary job is `{0}` salary job is `{1}`".format(wage, salary)
-        await ctx.reply(message)
 
-    @commands.guildowner_or_permissions()
-    @job.command(name="settings")
-    async def settings(self, ctx: commands.Context):
-        """
-        Displays current settings for occupations cog
-        """
-        maxsalary = await self.config.guild(ctx.guild).maxsalary()
-        cooldown = await self.config.guild(ctx.guild).timediff()
-        chanceScalar = await self.config.guild(ctx.guild).chancescalar()
-        salaryScalar = await self.config.guild(ctx.guild).salaryscalar()
-        message = "The current settings in this guild are:\n Max salary: {0}\nCooldown: {1}\nChance Scalar: {2}\nSalary Scalar: {3}"
-        embed = discord.Embed(title="Job Settings", description="The current settings in this guild are:", color=0xc72327)
-        embed.add_field(name="Max salary:", value=maxsalary, inline=False)
-        embed.add_field(name="Cooldown:", value=cooldown, inline=False)
-        embed.add_field(name="Chance Scalar:", value=chanceScalar, inline=False)
-        embed.add_field(name="Salary Scalar:", value=salaryScalar, inline=False)
-        mess = await ctx.send(embed=embed)
+        async def cooldown(self, ctx: commands.Context, setting: float = 1.0) -> None:
+            """
+            Command for setting the cooldown
+            """
+            await self.config.guild(ctx.guild).timediff.set(int(setting))
+            await ctx.reply(f"The job search cooldown was set to `{int(setting)}` seconds.")
+
+        async def salaryscalar(self, ctx: commands.Context, setting: float = 1.0) -> None:
+            """
+            Command for setting the salary scalar
+
+            This multiplies the pay by a number
+            """
+            await self.config.guild(ctx.guild).salaryscalar.set(setting)
+            wages = [20000, 40000, 75000, 100000, 125000, 150000]
+            maxsalary = await self.config.guild(ctx.guild).maxsalary()
+            message = "The salary scalar was set to `{0}`".format(setting)
+            for wage in wages:
+                salary = int(((3600 / (60*60*24*30)) * int(wage) * setting) * 0.27)
+                message = message + f"\nThe hourly pay of a {wage} salary job is `{salary}`"
+            await ctx.reply(message)
+
+        async def current(self, ctx: commands.Context) -> None:
+            """
+            Displays current settings for occupations cog
+            """
+            maxsalary = await self.config.guild(ctx.guild).maxsalary()
+            cooldown = await self.config.guild(ctx.guild).timediff()
+            chanceScalar = await self.config.guild(ctx.guild).chancescalar()
+            salaryScalar = await self.config.guild(ctx.guild).salaryscalar()
+            embed = discord.Embed(title="Job Settings", description="The current settings in this guild are:", color=0xc72327)
+            embed.add_field(name="Max salary:", value=f"{maxsalary} {await bank.get_currency_name(ctx.guild)}", inline=False)
+            embed.add_field(name="Cooldown:", value=f"{cooldown} seconds", inline=False)
+            embed.add_field(name="Chance Scalar:", value=chanceScalar, inline=False)
+            embed.add_field(name="Salary Scalar:", value=salaryScalar, inline=False)
+            mess = await ctx.reply(embed=embed)
+            
+
+        if subcommand.value == "maxsalary":
+            await maxsalary(self, ctx, setting)
+        elif subcommand.value == "chancescalar":
+            await chancescalar(self, ctx, setting)
+        elif subcommand.value == "cooldown":
+            await cooldown(self, ctx, setting)
+        elif subcommand.value == "salaryscalar":
+            await salaryscalar(self, ctx, setting)
+        elif subcommand.value == "current":
+            await current(self, ctx)
+        else:
+            await ctx.reply("This is not a valid subcommand options are: 'maxsalary', 'chancescalar','cooldown','salaryscalar', or 'current'")

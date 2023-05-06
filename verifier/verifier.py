@@ -51,20 +51,20 @@ class verifier(commands.Cog):
         if unverified in user.roles:
             await user.add_roles(role)
             await user.remove_roles(unverified)
-            await ctx.send("User Verified as {0}".format(role.name))
+            await ctx.reply("User Verified as {0}".format(role.name))
             await mess1.delete()
         elif unverified is None:
-            await ctx.send("Server was not setup, please ask the owner to run [p]vsetup")
+            await ctx.reply("Server was not setup, please ask the owner to run [p]vsetup", ephemeral=True)
         else:
-            await ctx.send("User is already verified!")
+            await ctx.reply("User is already verified!", ephemeral=True)
             await mess1.delete()
 
     def pred(self, emojis, mess1, user: discord.Member):
         return ReactionPredicate.with_emojis(emojis, mess1, user)
 
     @commands.admin()
-    @commands.command(name="verify")
-    async def verify(self, ctx: commands.Context, user: discord.Member):
+    @commands.hybrid_command(name="verify", with_app_command=True)
+    async def verify(self, ctx: commands.Context, user: discord.Member) -> None:
         """
         Opens the verification gui
         """
@@ -86,8 +86,8 @@ class verifier(commands.Cog):
             pass
 
     @commands.guildowner()
-    @commands.command(name="vsetup")
-    async def setup(self, ctx: commands.Context):
+    @commands.hybrid_command(name="vsetup")
+    async def setup(self, ctx: commands.Context) -> None:
         """
         Setup command for verify cog
         """
@@ -98,29 +98,25 @@ class verifier(commands.Cog):
         def check(m):
             return m.channel == mess0.channel
 
-        mess0 = await ctx.send("Please input the role for unverified members.")
+        mess0 = await ctx.send("Please input the role for unverified members.", ephemeral=True)
         msg0 = await self.bot.wait_for('message', check=check, timeout=120)
         if msg0.content != "none":
             for i in msg0.role_mentions:
                 newWrite.update({"unverified": i.id})
-        await mess0.delete()
-        mess1 = await ctx.send("Please input the role for verified males")
+        mess1 = await ctx.send("Please input the role for verified males", ephemeral=True)
         msg1 = await self.bot.wait_for('message', check=check, timeout=120)
         if msg1.content != "none":
             for i in msg1.role_mentions:
                 newWrite.update({"male": i.id})
-        await mess1.delete()
-        mess2 = await ctx.send("Please input the role for verified females")
+        mess2 = await ctx.send("Please input the role for verified females", ephemeral=True)
         msg2 = await self.bot.wait_for('message', check=check, timeout=120)
         if msg2.content != "none":
             for i in msg2.role_mentions:
                 newWrite.update({"female": i.id})
-        await mess2.delete()
-        mess3 = await ctx.send("Please input the role for verified non-binary")
+        mess3 = await ctx.send("Please input the role for verified non-binary", ephemeral=True)
         msg3 = await self.bot.wait_for('message', check=check, timeout=120)
         if msg3.content != "none":
             for i in msg3.role_mentions:
                 newWrite.update({"nb": i.id})
-        await mess3.delete()
         x.update(newWrite)
         await self.config.guild(guild).verifierroles.set(x)

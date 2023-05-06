@@ -1,3 +1,4 @@
+from dis import disco
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
@@ -5,6 +6,7 @@ import discord
 import datetime
 import time
 import logging
+import asyncio
 
 
 class usergate(commands.Cog):
@@ -23,17 +25,18 @@ class usergate(commands.Cog):
             "usergate": 0
         }
         self.config.register_guild(**default_guild)
+        super().__init__()
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
         userGate = await self.config.guild(guild).usergate()
         if time.mktime(member.created_at.timetuple()) > (time.mktime(datetime.datetime.now().timetuple()) - (userGate * 24 * 60 * 60)):
-            await member.kick(reason="Account is under {0} days old".format(str(userGate)))
+            await member.kick(reason=f"Account is under {str(userGate)} days old")
 
-    @commands.guildowner_or_permissions()
-    @commands.command(name="usergate")
-    async def usergate(self, ctx: commands.Context, days: int):
+
+    @commands.hybrid_command(name="usergate", with_app_command=True)
+    async def usergate(self, ctx: commands.Context, days: int) -> None:
         """
         Usergate setup command
 
@@ -41,4 +44,4 @@ class usergate(commands.Cog):
         """
         guild = ctx.guild
         await self.config.guild(guild).usergate.set(days)
-        await ctx.send("Usergate was set to {0} days".format(days))
+        await ctx.reply(f"Usergate was set to {days} days", ephemeral=True)

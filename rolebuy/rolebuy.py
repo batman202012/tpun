@@ -30,15 +30,15 @@ class rolebuy(commands.Cog):
         # TODO: Replace this with the proper end user data removal handling.
         super().red_delete_data_for_user(requester=requester, user_id=user_id)
 
-    @commands.group(name="rb")
+    @commands.hybrid_group(name="rb", with_app_command=True)
     async def rb(self, ctx):
         """
         Base command for all timed ping commands
         """
         pass
 
-    @rb.command(name="buy")
-    async def buy(self, ctx: commands.Context, role: discord.Role):
+    @rb.command(name="buy", with_app_command=True)
+    async def buy(self, ctx: commands.Context, role: discord.Role) -> None:
         """
         Buys a role for money
         """
@@ -48,17 +48,15 @@ class rolebuy(commands.Cog):
             if userAccount.balance >= buyableRoles[str(role.id)]:
                 await ctx.author.add_roles(role)
                 await bank.set_balance(ctx.author, userAccount.balance - buyableRoles[str(role.id)])
-                await ctx.send("{0} You bought {1} for {2} currency".format(ctx.author.name, role.name, buyableRoles[str(role.id)]))
+                await ctx.reply(f"You bought {role.name} for {buyableRoles[str(role.id)]} currency")
             else:
-                await ctx.send("I'm sorry {0} but you don't have enough to buy {1} it costs {2} currency"
-                    .format(ctx.author.name, role.name, buyableRoles[str(role.id)])
-                )
+                await ctx.reply(f"I'm sorry but you don't have enough to buy {role.name} it costs {buyableRoles[str(role.id)]} currency", ephemeral=True)
         else:
-            await ctx.send("Sorry this role is not for sale, run rb list to find out with ones are.")
+            await ctx.reply("Sorry this role is not for sale, run rb list to find out with ones are.", ephemeral=True)
 
     @commands.guildowner_or_permissions()
-    @rb.command(name="add")
-    async def add(self, ctx: commands.Context, role: discord.Role, cost: int):
+    @rb.command(name="add", with_app_command=True)
+    async def add(self, ctx: commands.Context, role: discord.Role, cost: int) -> None:
         """
         Adds a role to the buyable role list
         """
@@ -66,11 +64,11 @@ class rolebuy(commands.Cog):
         nC = {str(role.id): cost}
         buyableRoles.update(nC)
         await self.config.guild(ctx.guild).buyableroles.set(buyableRoles)
-        await ctx.send("{0} was added to the buyable roles list with cost {1} currency".format(role.mention, cost))
+        await ctx.reply(f"{role.mention} was added to the buyable roles list with cost {cost} currency", ephemeral=True)
 
     @commands.guildowner_or_permissions()
-    @rb.command(name="remove")
-    async def remove(self, ctx: commands.Context, role: discord.Role):
+    @rb.command(name="remove", with_app_command=True)
+    async def remove(self, ctx: commands.Context, role: discord.Role) -> None:
         """
         Removes a role from the buyable role list
         """
@@ -78,22 +76,22 @@ class rolebuy(commands.Cog):
         if str(role.id) in buyableRoles.keys():
             buyableRoles.pop(str(role.id), None)
             await self.config.guild(ctx.guild).buyableroles.set(buyableRoles)
-            await ctx.send("{0} was removed from the buyable role List".format(role.mention))
+            await ctx.send(f"{role.mention} was removed from the buyable role List", ephemeral=True)
         else:
             await ctx.send("That role isn't a buyable role")
 
-    @rb.command(name="list")
-    async def list(self, ctx: commands.Context):
+    @rb.command(name="list", with_app_command=True)
+    async def list(self, ctx: commands.Context) -> None:
         """
         Lists all the timed ping roles for the server
         """
         roles = ""
         i = await self.config.guild(ctx.guild).buyableroles()
         for role, cost in i.items():
-            roles = roles + "<@&{0}> with cost of {1} currency \n".format(role, cost)
+            roles = roles + f"<@&{role}> with cost of {cost} currency \n"
         if roles != "":
-            mess1 = await ctx.send(roles)
+            mess1 = await ctx.reply(roles, ephemeral=True)
         else:
-            mess1 = await ctx.send("There are no buyable roles set up yet")
+            mess1 = await ctx.reply("There are no buyable roles set up yet", ephemeral=True)
         await asyncio.sleep(120)
         await mess1.delete()
