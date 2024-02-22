@@ -6,7 +6,7 @@ from redbot.core.config import Config
 import discord
 import logging
 import asyncio
-import openai
+from openai import OpenAI
 import os
 
 class chatGPT(commands.Cog):
@@ -28,22 +28,26 @@ class chatGPT(commands.Cog):
         "channels": [],
         "replyRespond": True
     }
+    client = OpenAI()
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def send_message(self, user_id, message, model, tokenLimit):
+  async def get_completion(prompt, client_instance, model, tokenLimit):
+    messages = [{"role": "user", "content": prompt}]
+    response = client_instance.chat.completions.create(
+    model=model,
+    messages=messages,
+    max_tokens=tokenLimit,
+    temperature=0.5,
+    )
+    return response.choices[0].message.content
+
+  async def send_message(self, client, user_id, message, model, tokenLimit) -> None:
     if user_id not in self.user_threads:
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
-    response = await openai.Completion.acreate(
-      engine=model,
-      prompt=self.prompt + message,
-      max_tokens=tokenLimit,
-      n=1,
-      stop=None,
-      temperature=0.5
-    )
-    self.user_threads[user_id] = await response["choices"][0]["text"]
+    response = await self.get_completion(message, client, model, tokenLimit)
+    self.user_threads[user_id] = response["choices"][0]["text"]
     return self.user_threads[user_id]
 
   
@@ -58,8 +62,9 @@ class chatGPT(commands.Cog):
             if chatGPTKey.get("api_key") is None:
                 self.log.error("No api key set.")
                 return await ctx.send("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
-            openai.api_key = chatGPTKey.get("api_key")
-            response: str = await self.send_message(ctx.author.id, query, model, tokenLimit)
+            client = OpenAI()
+            OpenAI.api_key = chatGPTKey.get("api_key")
+            response: str = await self.send_message(client, ctx.author.id, query, model, tokenLimit)
             if len(response) > 0 and len(response) < 2000:
                 self.log.debug("Response is under 2000 characters and is: `" + response + "`.")
                 await ctx.reply(response)
@@ -71,8 +76,8 @@ class chatGPT(commands.Cog):
                     await ctx.send(file=discord.File(f))
                     os.remove(f)
             else:
-                await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.")
-        except openai.error.InvalidRequestError as err:
+                await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.", ephemeral=True)
+        except OpenAI.error.InvalidRequestError as err:
             await ctx.send(err)
 
   @commands.Cog.listener()
