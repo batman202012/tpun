@@ -46,9 +46,6 @@ class chatGPT(commands.Cog):
     return response.choices[0].message.content
 
   async def send_message(self, user_id, message, model, maxtokens) -> None:
-    if user_id not in self.user_threads:
-      self.user_threads[user_id] = ""
-    self.prompt = self.user_threads[user_id]
     response = await self.get_completion(str(user_id), model, maxtokens, message)
     return response
 
