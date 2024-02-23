@@ -6,6 +6,7 @@ from redbot.core.config import Config
 import discord
 import logging
 import asyncio
+import openai
 from openai import OpenAI
 import os
 
@@ -76,7 +77,7 @@ class chatGPT(commands.Cog):
                     os.remove(f)
             else:
                 await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.", ephemeral=True)
-        except OpenAI.error.InvalidRequestError as err:
+        except openai.OpenAIError as err:
             await ctx.send(err)
 
   @commands.Cog.listener()
