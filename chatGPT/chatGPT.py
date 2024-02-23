@@ -252,7 +252,7 @@ class chatGPT(commands.Cog):
 
   @checks.is_owner()
   @chatgpt.command(name="tokenlimit")
-  @app_commands.describe(tokenlimit="Token limit for each chatGPT interaction.")
+  @app_commands.describe(tokenLimit="Token limit for each chatGPT interaction.")
   async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
