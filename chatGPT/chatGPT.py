@@ -22,7 +22,7 @@ class chatGPT(commands.Cog):
     )
     self.user_threads = {}
     defaultGlobalConfig = {
-        "model": "text-ada-001",
+        "model": "gpt-3.5-turbo-0613",
         "tokenLimit": 1000
     }
     defaultGuildConfig = {
@@ -212,16 +212,18 @@ class chatGPT(commands.Cog):
     For more information on what this means please check out: https://beta.openai.com/docs/models/gpt-3
     """
     model_map = {
-        "0": "text-ada-001",
-        "1": "text-babbage-001",
-        "2": "text-curie-001",
-        "3": "text-davinci-002",
-        "4": "text-davinci-003",
-        "text-ada-001": "text-ada-001",
-        "text-babbage-001": "text-babbage-001",
-        "text-curie-001": "text-curie-001",
-        "text-davinci-002": "text-davinci-002",
-        "text-davinci-003": "text-davinci-003"
+        "0": "gpt-3.5-turbo-0613",
+        "1": "gpt-3.5-turbo-16k-0613",
+        "2": "gpt-4-0314",
+        "3": "gpt-4-32k-0314",
+        "4": "gpt-4-0613",
+        "5": "gpt-4-32k-0613",
+        "gpt-3.5-turbo-0613": "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-16k-0613": "gpt-3.5-turbo-16k-0613",
+        "gpt-4-0314": "gpt-4-0314",
+        "gpt-4-32k-0314": "gpt-4-32k-0314",
+        "gpt-4-0613": "gpt-4-0613",
+        "gpt-4-32k-0613": "gpt-4-32k-0613"
     }
     if model in model_map:
         await self.config.model.set(model_map[model])
