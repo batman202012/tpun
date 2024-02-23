@@ -82,6 +82,8 @@ class chatGPT(commands.Cog):
 
   @commands.Cog.listener()
   async def on_message_without_command(self, message: discord.Message):
+    if message.guild == None:
+       return
     whitelistedChannels: list = await self.config.guild(message.guild).channels()
     replyRespond: bool = await self.config.guild(message.guild).replyRespond()
     query = message.content
@@ -242,7 +244,6 @@ class chatGPT(commands.Cog):
         "gpt-4-turbo-preview": "gpt-4-turbo-preview",
         "gpt-4-0125-preview": "gpt-4-0125-preview"
     }
-    self.log.error(model.value)
     if model.value in model_map:
         await self.config.model.set(model_map[model.value])
         await ctx.send("The chatbot model is now set to: `" + model_map[model.value] + "`", ephemeral=True)
