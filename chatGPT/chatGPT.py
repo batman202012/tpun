@@ -50,8 +50,7 @@ class chatGPT(commands.Cog):
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
     response = await self.get_completion(str(user_id), model, maxtokens, message)
-    self.user_threads[user_id] = response["choices"][0]["text"]
-    return self.user_threads[user_id]
+    return response
 
   
 
@@ -259,7 +258,7 @@ class chatGPT(commands.Cog):
   @app_commands.describe(maxtokens="Token limit for each chatGPT interaction.")
   async def tokenlimit(self, ctx: commands.Context, maxtokens: int):
     """
-    Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
+    Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as only response. Check the Managing tokens article to see token limits on specific models.\n\n
     
     For more information on tokens check out: https://platform.openai.com/docs/guides/text-generation/managing-tokens
     For token prices also see: https://openai.com/api/pricing/
