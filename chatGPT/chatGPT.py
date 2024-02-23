@@ -157,7 +157,7 @@ class chatGPT(commands.Cog):
     Use `[p]chatgpt set channeladd <channel_id>` or `[p]chatgpt set channelremove <channel_id>` to set up channel whitelist where the bot will respond.\n\n
     Use `[p]chatgpt set replyRespond <True or False>` to enable or disable the bot responding to replies regardless of channel
     """
-    if setting == "channeladd":
+    if setting.value == "channeladd":
       if value is discord.TextChannel:
         value: int = value.id
         pass
@@ -186,7 +186,7 @@ class chatGPT(commands.Cog):
           return
       await ctx.send("<#" + str(channelId) + "> was already whitelisted.", ephemeral=True)
 
-    elif setting == "channelremove":
+    elif setting.value == "channelremove":
       if value is discord.TextChannel:
         value: int = value.id
         pass
@@ -198,7 +198,7 @@ class chatGPT(commands.Cog):
       except ValueError:
           await ctx.send("That channel was already not in channel list.", ephemeral=True)
 
-    elif setting == "replyRespond":
+    elif setting.value == "replyRespond":
         if value is str:
           value = value.lower()
         if value == "true" or value == "1":
