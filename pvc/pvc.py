@@ -474,7 +474,7 @@ class pvc(commands.Cog):
         """
         guild = ctx.guild
         channel = await ctx.guild.create_text_channel("personal-vc-commands")
-        mess0 = await ctx.channel.send("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.", ephemeral=True)
+        mess0 = await ctx.channel.send("Make sure to put the personal-vc-commands channel in the category you wish channels to be made in. You may rename the channel to whatever you wish.")
         await self.config.guild(guild).channel.set(channel.id)
         mess1 = await ctx.channel.send("Please ping any roles you wish to have permissions to join channels on creation. These roles will also be used for unlock/lock commands. If you wish to allow anyone to join on creation type 'none'.")
 
