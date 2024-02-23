@@ -28,7 +28,6 @@ class chatGPT(commands.Cog):
         "channels": [],
         "replyRespond": True
     }
-    client = OpenAI()
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
@@ -62,8 +61,8 @@ class chatGPT(commands.Cog):
             if chatGPTKey.get("api_key") is None:
                 self.log.error("No api key set.")
                 return await ctx.send("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
-            client = OpenAI()
             OpenAI.api_key = chatGPTKey.get("api_key")
+            client = OpenAI()
             response: str = await self.send_message(client, ctx.author.id, query, model, tokenLimit)
             if len(response) > 0 and len(response) < 2000:
                 self.log.debug("Response is under 2000 characters and is: `" + response + "`.")
