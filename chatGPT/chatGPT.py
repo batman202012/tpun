@@ -32,7 +32,7 @@ class chatGPT(commands.Cog):
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def get_completion(prompt, client_instance, model, tokenLimit):
+  async def get_completion(self, client_instance, model, tokenLimit, prompt):
     messages = [{"role": "user", "content": prompt}]
     response = client_instance.chat.completions.create(
     model=model,
@@ -46,7 +46,7 @@ class chatGPT(commands.Cog):
     if user_id not in self.user_threads:
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
-    response = await self.get_completion(message, client, model, tokenLimit)
+    response = await self.get_completion(client, model, tokenLimit, message)
     self.user_threads[user_id] = response["choices"][0]["text"]
     return self.user_threads[user_id]
 
