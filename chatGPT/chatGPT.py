@@ -111,7 +111,7 @@ class chatGPT(commands.Cog):
         if context.author.id == self.bot.user.id:
             await self.send_chat(ctx, query)
 
-  @commands.hybrid_command(name="chatgpt")
+  @commands.hybrid_group(name="chatgpt")
   @app_commands.describe(chatgpt="Base command for chatGPT cog")
   async def chatgpt(self, ctx: commands.Context):
         """
