@@ -219,7 +219,7 @@ class chatGPT(commands.Cog):
         app_commands.Choice(name="gpt-4-0613", value="2"),
         app_commands.Choice(name="gpt-4-32k-0613", value="3"),
         app_commands.Choice(name="gpt-4-turbo-preview", value="4"),
-        app_commands.Choice(name="gpt-4-0125-preview", value="5"),
+        app_commands.Choice(name="gpt-4-0125-preview", value="5")
     ])
   async def model(self, ctx: commands.Context, model: app_commands.Choice[str]):
     """
