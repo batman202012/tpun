@@ -257,4 +257,4 @@ class chatGPT(commands.Cog):
         await self.config.tokenlimit.set(tokenLimit)
         await ctx.reply("Token limit is now set to " + str(tokenLimit))
     else:
-        await ctx.reply("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1] + "."))
+        await ctx.reply("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1]) + ".")
