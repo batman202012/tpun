@@ -32,15 +32,16 @@ class chatGPT(commands.Cog):
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def get_completion(self, user, model, maxtokens, prompt):
-    messages = [{"role": user, "content": prompt}]
+  async def get_completion(self, userId, model, maxtokens, prompt):
+    messages = [{"role": "user", "content": prompt}]
     chatGPTKey = await self.bot.get_shared_api_tokens("openai")
     client = OpenAI(api_key=chatGPTKey.get("api_key"))
     response = client.chat.completions.create(
-    model=model,
-    messages=messages,
-    max_tokens=maxtokens,
-    temperature=0.5
+        model=model,
+        messages=messages,
+        max_tokens=maxtokens,
+        temperature=0.5,
+        user=userId
     )
     return response.choices[0].message.content
 
