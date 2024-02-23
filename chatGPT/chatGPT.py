@@ -271,7 +271,7 @@ class chatGPT(commands.Cog):
     }
 
     if model in model_limits and model_limits[model][0] < maxTokens <= model_limits[model][1]:
-        await self.config.tokenlimit.set(maxTokens)
+        await self.config.maxTokens.set(maxTokens)
         await ctx.send("Token limit is now set to " + str(maxTokens), ephemeral=True)
     else:
         await ctx.send("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1]) + ".", ephemeral=True)
