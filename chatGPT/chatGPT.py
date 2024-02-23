@@ -54,7 +54,7 @@ class chatGPT(commands.Cog):
 
   
 
-  async def send_chat(self, ctx: commands.Context, query: str):
+  async def send_chat(self, ctx: commands.Context, query: str) -> None:
     async with ctx.typing():
         try:
             model = await self.config.model()
