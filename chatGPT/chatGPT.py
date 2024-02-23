@@ -111,7 +111,7 @@ class chatGPT(commands.Cog):
         if context.author.id == self.bot.user.id:
             await self.send_chat(interaction, query)
 
-  @app_commands.AppCommandGroup()
+  @app_commands.AppCommand(name="chatgpt")
   @app_commands.describe(chatgpt="Base command for chatGPT cog")
   async def chatgpt(self, interaction: discord.Interaction):
         """
@@ -119,7 +119,7 @@ class chatGPT(commands.Cog):
         """
         pass
 
-  @chatgpt.command(name="chat")
+  @app_commands.AppCommandGroup(parent=chatgpt, name= "chat")
   @app_commands.describe(chatgpt="Send a message to chatGPT")
   async def chat(self, interaction: discord.Interaction, *, query: str):
     """
@@ -128,7 +128,7 @@ class chatGPT(commands.Cog):
     await self.send_chat(interaction, query)
 
   @checks.guildowner()
-  @chatgpt.command(name="channellist")
+  @app_commands.AppCommandGroup(parent=chatgpt, name="channellist")
   @app_commands.describe(chatgpt="List of channels chatGPT will auto reply in.")
   async def channellist(self, interaction: discord.Interaction):
     """
@@ -145,7 +145,7 @@ class chatGPT(commands.Cog):
 
 
   @checks.guildowner()
-  @chatgpt.command(name="set")
+  @app_commands.AppCommandGroup(parent=chatgpt, name= "set")
   @app_commands.describe(chatgpt="Commands to add/remove channel to/from chatGPT whitelist")
   @app_commands.choices(setting=[
         app_commands.Choice(name="channeladd", value="channeladd"),
@@ -213,7 +213,7 @@ class chatGPT(commands.Cog):
           await interaction.response.send_message("This command only accepts `true` or `false`.", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.command(name="model")
+  @app_commands.AppCommandGroup(parent=chatgpt, name="model")
   @app_commands.describe(chatgpt="Commands to select model for chatGPT to use.")
   @app_commands.choices(model=[
         app_commands.Choice(name="gpt-3.5-turbo-0613", value="0"),
@@ -253,7 +253,7 @@ class chatGPT(commands.Cog):
         await interaction.response.send_message("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.command(name="tokenlimit")
+  @app_commands.AppCommandGroup(parent=chatgpt, name="tokenlimit")
   @app_commands.describe(chatgpt="Commands to chose a token limit for each chatGPT interaction.")
   async def tokenlimit(self, interaction: discord.Interaction, tokenLimit: int):
     """
