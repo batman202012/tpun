@@ -1,3 +1,4 @@
-red-discordbot
+Red-DiscordBot
 discord.py
 aio-mc-rcon
+openai
