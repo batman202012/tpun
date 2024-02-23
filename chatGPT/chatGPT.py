@@ -219,7 +219,8 @@ class chatGPT(commands.Cog):
         app_commands.Choice(name="gpt-4-0613", value="2"),
         app_commands.Choice(name="gpt-4-32k-0613", value="3"),
         app_commands.Choice(name="gpt-4-turbo-preview", value="4"),
-        app_commands.Choice(name="gpt-4-0125-preview", value="5")
+        app_commands.Choice(name="gpt-4-0125-preview", value="5"),
+        app_commands.Choice(name="current", value="current")
     ])
   async def model(self, ctx: commands.Context, model: app_commands.Choice[str]):
     """
@@ -241,11 +242,11 @@ class chatGPT(commands.Cog):
         "gpt-4-turbo-preview": "gpt-4-turbo-preview",
         "gpt-4-0125-preview": "gpt-4-0125-preview"
     }
-    self.log.error(model)
-    if model in model_map:
-        await self.config.model.set(model_map[model])
-        await ctx.send("The chatbot model is now set to: `" + model_map[model] + "`", ephemeral=True)
-    elif model == "current":
+    self.log.error(model.value)
+    if model.value in model_map:
+        await self.config.model.set(model_map[model.value])
+        await ctx.send("The chatbot model is now set to: `" + model_map[model.value] + "`", ephemeral=True)
+    elif model.value == "current":
         currentModel = await self.config.model()
         await ctx.send("The chatbot model is currently set to: " + currentModel, ephemeral=True)
     else:
