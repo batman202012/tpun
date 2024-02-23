@@ -251,9 +251,9 @@ class chatGPT(commands.Cog):
         await ctx.send("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.command(name="tokenlimit", description="Sets token limit for each chatGPT interaction.")
+  @chatgpt.command(name="tokenLimit", description="Sets token limit for each chatGPT interaction.")
   @app_commands.describe(maxTokens="Token limit for each chatGPT interaction.")
-  async def tokenlimit(self, ctx: commands.Context, maxTokens: int):
+  async def tokenLimit(self, ctx: commands.Context, maxTokens: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
     
