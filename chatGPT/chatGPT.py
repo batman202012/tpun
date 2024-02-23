@@ -1,5 +1,5 @@
 from redbot.core import data_manager
-from redbot.core import commands
+from redbot.core import commands, app_commands
 from redbot.core import checks
 from redbot.core.bot import Red
 from redbot.core.config import Config
@@ -54,8 +54,8 @@ class chatGPT(commands.Cog):
 
   
 
-  async def send_chat(self, ctx: commands.Context, query: str):
-    async with ctx.typing():
+  async def send_chat(self, interaction: discord.Interaction, query: str):
+    async with interaction.typing():
         try:
             model = await self.config.model()
             tokenLimit = await self.config.tokenLimit()
@@ -63,22 +63,22 @@ class chatGPT(commands.Cog):
             chatGPTKey = await self.bot.get_shared_api_tokens("openai")
             if chatGPTKey.get("api_key") is None:
                 self.log.error("No api key set.")
-                return await ctx.send("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
-            response: str = await self.send_message(ctx.author.id, query, model, tokenLimit)
+                return await interaction.response.send_message("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
+            response: str = await self.send_message(interaction.author.id, query, model, tokenLimit)
             if len(response) > 0 and len(response) < 2000:
                 self.log.debug("Response is under 2000 characters and is: `" + response + "`.")
-                await ctx.reply(response)
+                await interaction.response.send_message(response)
             elif len(response) > 2000:
                 self.log.debug("Response is over 2000 characters sending as file attachment. Response is: `" + response + "`.")
-                with open(str(ctx.author.id) + '.txt', 'w') as f:
+                with open(str(interaction.author.id) + '.txt', 'w') as f:
                     f.write(response)
-                with open(str(ctx.author.id) + '.txt', 'r') as f:
-                    await ctx.send(file=discord.File(f))
+                with open(str(interaction.author.id) + '.txt', 'r') as f:
+                    await interaction.response.send_message(file=discord.File(f))
                     os.remove(f)
             else:
-                await ctx.reply("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.", ephemeral=True)
+                await interaction.response.send_message("I'm sorry, for some reason chatGPT's response contained nothing, please try sending your query again.", ephemeral=True)
         except openai.OpenAIError as err:
-            await ctx.send(err)
+            await interaction.response.send_message(err)
 
   @commands.Cog.listener()
   async def on_message_without_command(self, message: discord.Message):
@@ -87,7 +87,7 @@ class chatGPT(commands.Cog):
     query = message.content
     validFile: bool = False
     validFileTypes = ['.py', '.js', '.txt', '.yaml', '.html', '.xml', '.c', '.java', '.cs', '.php', '.css']
-    ctx = await self.bot.get_context(message)
+    interaction = await self.bot.get_context(message)
     if whitelistedChannels is not None and message.channel.id in whitelistedChannels and message.author.id != self.bot.user.id:
         if message.attachments:
             # Get the file
@@ -101,49 +101,58 @@ class chatGPT(commands.Cog):
                     self.log.debug("Final query: " + query)
                     validFile = True
             if not validFile:
-                await ctx.reply("Sorry but that isn't a valid filetype.")
-        await self.send_chat(ctx, query)
+                await interaction.response.send_message("Sorry but that isn't a valid filetype.", ephemeral=True)
+        await self.send_chat(interaction, query)
     if replyRespond and message.reference is not None and message.author.id != self.bot.user.id:
         # Fetching the message
         channel = self.bot.get_channel(message.reference.channel_id)
         msg = await channel.fetch_message(message.reference.message_id)
         context: commands.Context = await self.bot.get_context(msg)
         if context.author.id == self.bot.user.id:
-            await self.send_chat(ctx, query)
+            await self.send_chat(interaction, query)
 
-  @commands.group(name="chatgpt")
-  async def chatgpt(self, ctx: commands.Context):
+  @app_commands.group(name="chatgpt")
+  @app_commands.describe(chatgpt="Base command for chatGPT cog")
+  async def chatgpt(self, interaction: discord.Interaction):
         """
         Base command for chatgpt related commands
         """
         pass
 
   @chatgpt.command(name="chat")
-  async def chat(self, ctx: commands.Context, *, query: str):
+  @app_commands.describe(chatgpt="Send a message to chatGPT")
+  async def chat(self, interaction: discord.Interaction, *, query: str):
     """
     Asks chatgpt a query
     """
-    await self.send_chat(ctx, query)
+    await self.send_chat(interaction, query)
 
   @checks.guildowner()
   @chatgpt.command(name="channellist")
-  async def channellist(self, ctx: commands.Context):
+  @app_commands.describe(chatgpt="List of channels chatGPT will auto reply in.")
+  async def channellist(self, interaction: discord.Interaction):
     """
     Lists the channels currently in the whitelist
     """
-    currentChannels: list = await self.config.guild(ctx.guild).channels()
+    currentChannels: list = await self.config.guild(interaction.guild).channels()
     if currentChannels is not None:
       message = "The current channels are:\n"
       for channelId in currentChannels:
         message = message + "<#" + str(channelId) + ">\n"
-      await ctx.reply(message)
+      await interaction.response.send_message(message)
     else:
-      await ctx.reply("There are currently no channels whitelisted for chatGPT.")
+      await interaction.response.send_message("There are currently no channels whitelisted for chatGPT.")
 
 
   @checks.guildowner()
   @chatgpt.command(name="set")
-  async def set(self, ctx: commands.Context, setting: str, value):
+  @app_commands.describe(chatgpt="Commands to add/remove channel to/from chatGPT whitelist")
+  @app_commands.choices(setting=[
+        app_commands.Choice(name="channeladd", value="channeladd"),
+        app_commands.Choice(name="channelremove", value="channelremove"),
+        app_commands.Choice(name="replyRespond", value="replyRespond")
+    ])
+  async def set(self, interaction: discord.Interaction, setting: app_commands.Choice[str], value: str):
     """
     Changes settings for bot to use
 
@@ -157,55 +166,64 @@ class chatGPT(commands.Cog):
       channelId = int(value)
       channel = self.bot.get_channel(channelId)
       if channel == None:
-          await ctx.reply("That channel does not exist or the bot can not see it.")
+          await interaction.response.send_message("That channel does not exist or the bot can not see it.", ephemeral=True)
           return
-      elif channel.guild != ctx.guild:
-          await ctx.reply("That channel isn't in this server...")
+      elif channel.guild != interaction.guild:
+          await interaction.response.send_message("That channel isn't in this server...", ephemeral=True)
           return
-      currentChannels: list = await self.config.guild(ctx.guild).channels()
+      currentChannels: list = await self.config.guild(interaction.guild).channels()
       self.log.info(currentChannels)
       if currentChannels is None:
-          self.log.info("Current channel list is empty adding the new channel.")
+          self.log.info("Current channel list is empty adding the new channel.", ephemeral=True)
           newChannels: list = [channelId]
-          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.")
-          await self.config.guild(ctx.guild).channels.set(newChannels)
+          await interaction.response.send_message("<#" + str(channelId) + "> is now whitelisted.", ephemeral=True)
+          await self.config.guild(interaction.guild).channels.set(newChannels)
           return
       if channelId not in currentChannels:
           self.log.info("Channel is not in list so we add it.")
           currentChannels.append(channelId)
           self.log.info(currentChannels)
-          await ctx.reply("<#" + str(channelId) + "> is now whitelisted.")
-          await self.config.guild(ctx.guild).channels.set(currentChannels)
+          await interaction.response.send_message("<#" + str(channelId) + "> is now whitelisted.", ephemeral=True)
+          await self.config.guild(interaction.guild).channels.set(currentChannels)
           return
-      await ctx.reply("<#" + str(channelId) + "> was already whitelisted.")
+      await interaction.response.send_message("<#" + str(channelId) + "> was already whitelisted.", ephemeral=True)
 
     elif setting == "channelremove":
       if value is discord.TextChannel:
         value: int = value.id
         pass
-      currentChannels: list = await self.config.guild(ctx.guild).channels()
+      currentChannels: list = await self.config.guild(interaction.guild).channels()
       try:
           currentChannels.remove(int(value))
-          await self.config.guild(ctx.guild).channels.set(currentChannels)
-          await ctx.reply("<#" + str(value) + "> is no longer whitelisted.")
+          await self.config.guild(interaction.guild).channels.set(currentChannels)
+          await interaction.response.send_message("<#" + str(value) + "> is no longer whitelisted.", ephemeral=True)
       except ValueError:
-          await ctx.reply("That channel was already not in channel list.")
+          await interaction.response.send_message("That channel was already not in channel list.", ephemeral=True)
 
     elif setting == "replyRespond":
         if value is str:
           value = value.lower()
         if value == "true" or value == "1":
-            await self.config.guild(ctx.guild).replyRespond.set(True)
-            await ctx.reply("replyRespond is now set to True")
+            await self.config.guild(interaction.guild).replyRespond.set(True)
+            await interaction.response.send_message("replyRespond is now set to True", ephemeral=True)
         elif value == "false" or value == "0":
-            await self.config.guild(ctx.guild).replyRespond.set(False)
-            await ctx.reply("replyRespond is now set to False")
+            await self.config.guild(interaction.guild).replyRespond.set(False)
+            await interaction.response.send_message("replyRespond is now set to False", ephemeral=True)
         else:
-          await ctx.reply("This command only accepts `true` or `false`.")
+          await interaction.response.send_message("This command only accepts `true` or `false`.", ephemeral=True)
 
   @checks.is_owner()
   @chatgpt.command(name="model")
-  async def model(self, ctx: commands.Context, model: str):
+  @app_commands.describe(chatgpt="Commands to select model for chatGPT to use.")
+  @app_commands.choices(model=[
+        app_commands.Choice(name="gpt-3.5-turbo-0613", value="0"),
+        app_commands.Choice(name="gpt-3.5-turbo-16k-0613", value="1"),
+        app_commands.Choice(name="gpt-4-0613", value="2"),
+        app_commands.Choice(name="gpt-4-32k-0613", value="3"),
+        app_commands.Choice(name="gpt-4-turbo-preview", value="4"),
+        app_commands.Choice(name="gpt-4-0125-preview", value="5"),
+    ])
+  async def model(self, interaction: discord.Interaction, model: app_commands.Choice[str]):
     """
     Allows the changing of model chatbot is runnig. Options are: 0-`gpt-3.5-turbo-0613` 1-`gpt-3.5-turbo-16k-0613` 2-`gpt-4-0613` 3-`gpt-4-32k-0613` 4-`gpt-4-turbo-preview` 5-`gpt-4-0125-preview` current-`shows current model`\n\n
 
@@ -227,16 +245,17 @@ class chatGPT(commands.Cog):
     }
     if model in model_map:
         await self.config.model.set(model_map[model])
-        await ctx.reply("The chatbot model is now set to: `" + model_map[model] + "`")
+        await interaction.response.send_message("The chatbot model is now set to: `" + model_map[model] + "`", ephemeral=True)
     elif model == "current":
         currentModel = await self.config.model()
-        await ctx.reply("The chatbot model is currently set to: " + currentModel)
+        await interaction.response.send_message("The chatbot model is currently set to: " + currentModel, ephemeral=True)
     else:
-        await ctx.reply("That is not a valid model please use `[p]chatgpt model` to see valid models")
+        await interaction.response.send_message("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
   @chatgpt.command(name="tokenlimit")
-  async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
+  @app_commands.describe(chatgpt="Commands to chose a token limit for each chatGPT interaction.")
+  async def tokenlimit(self, interaction: discord.Interaction, tokenLimit: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
     
@@ -255,6 +274,6 @@ class chatGPT(commands.Cog):
 
     if model in model_limits and model_limits[model][0] < tokenLimit <= model_limits[model][1]:
         await self.config.tokenlimit.set(tokenLimit)
-        await ctx.reply("Token limit is now set to " + str(tokenLimit))
+        await interaction.response.send_message("Token limit is now set to " + str(tokenLimit), ephemeral=True)
     else:
-        await ctx.reply("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1]) + ".")
+        await interaction.response.send_message("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1]) + ".", ephemeral=True)
