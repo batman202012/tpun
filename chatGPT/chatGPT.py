@@ -111,7 +111,7 @@ class chatGPT(commands.Cog):
         if context.author.id == self.bot.user.id:
             await self.send_chat(interaction, query)
 
-  @app_commands.AppCommandGroup(name="chatgpt")
+  @app_commands.AppCommandGroup()
   @app_commands.describe(chatgpt="Base command for chatGPT cog")
   async def chatgpt(self, interaction: discord.Interaction):
         """
