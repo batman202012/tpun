@@ -112,15 +112,14 @@ class chatGPT(commands.Cog):
             await self.send_chat(ctx, query)
 
   @commands.hybrid_group(name="chatgpt")
-  @app_commands.describe(chatgpt="Base command for chatGPT cog")
   async def chatgpt(self, ctx: commands.Context):
         """
         Base command for chatgpt related commands
         """
         pass
 
-  @chatgpt.hybrid_command(name="chat")
-  @app_commands.describe(chatgpt="Send a message to chatGPT")
+  @chatgpt.command(name="chat")
+  @app_commands.describe(query="Message to send chatGPT")
   async def chat(self, ctx: commands.Context, *, query: str):
     """
     Asks chatgpt a query
@@ -128,8 +127,7 @@ class chatGPT(commands.Cog):
     await self.send_chat(ctx, query)
 
   @checks.guildowner()
-  @chatgpt.hybrid_command(name="channellist")
-  @app_commands.describe(chatgpt="List of channels chatGPT will auto reply in.")
+  @chatgpt.command(name="channellist")
   async def channellist(self, ctx: commands.Context):
     """
     Lists the channels currently in the whitelist
@@ -145,8 +143,8 @@ class chatGPT(commands.Cog):
 
 
   @checks.guildowner()
-  @chatgpt.hybrid_command(name="set")
-  @app_commands.describe(chatgpt="Commands to add/remove channel to/from chatGPT whitelist")
+  @chatgpt.command(name="set")
+  @app_commands.describe(value="Channel ID to add or remove. For replyRespond use True or False.")
   @app_commands.choices(setting=[
         app_commands.Choice(name="channeladd", value="channeladd"),
         app_commands.Choice(name="channelremove", value="channelremove"),
@@ -213,8 +211,8 @@ class chatGPT(commands.Cog):
           await ctx.send("This command only accepts `true` or `false`.", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.hybrid_command(name="model")
-  @app_commands.describe(chatgpt="Commands to select model for chatGPT to use.")
+  @chatgpt.command(name="model")
+  @app_commands.describe(model="Model for chatGPT to use.")
   @app_commands.choices(model=[
         app_commands.Choice(name="gpt-3.5-turbo-0613", value="0"),
         app_commands.Choice(name="gpt-3.5-turbo-16k-0613", value="1"),
@@ -253,8 +251,8 @@ class chatGPT(commands.Cog):
         await ctx.send("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.hybrid_command(name="tokenlimit")
-  @app_commands.describe(chatgpt="Commands to chose a token limit for each chatGPT ctx.")
+  @chatgpt.command(name="tokenlimit")
+  @app_commands.describe(tokenlimit="Token limit for each chatGPT interaction.")
   async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
