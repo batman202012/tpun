@@ -241,6 +241,7 @@ class chatGPT(commands.Cog):
         "gpt-4-turbo-preview": "gpt-4-turbo-preview",
         "gpt-4-0125-preview": "gpt-4-0125-preview"
     }
+    self.log.error(model)
     if model in model_map:
         await self.config.model.set(model_map[model])
         await ctx.send("The chatbot model is now set to: `" + model_map[model] + "`", ephemeral=True)
