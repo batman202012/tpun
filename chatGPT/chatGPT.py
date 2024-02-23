@@ -143,7 +143,7 @@ class chatGPT(commands.Cog):
 
 
   @checks.guildowner()
-  @chatgpt.command(name="set", description="Change settings for chatGPT, including what channels it should auto respond in and if the bot can respond via reply regardless of channel.")
+  @chatgpt.command(name="set", description="Change settings for chatGPT.")
   @app_commands.describe(value="Channel ID to add or remove. For replyRespond use True or False.")
   @app_commands.choices(setting=[
         app_commands.Choice(name="channeladd", value="channeladd"),
@@ -252,7 +252,6 @@ class chatGPT(commands.Cog):
 
   @checks.is_owner()
   @chatgpt.command(name="tokenlimit", description="Sets token limit for each chatGPT interaction.")
-  @app_commands.describe(tokenLimit="Token limit for each chatGPT interaction.")
   async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
