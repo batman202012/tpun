@@ -23,7 +23,7 @@ class chatGPT(commands.Cog):
     self.user_threads = {}
     defaultGlobalConfig = {
         "model": "gpt-3.5-turbo-0613",
-        "tokenLimit": 1000
+        "maxTokens": 1000
     }
     defaultGuildConfig = {
         "channels": [],
@@ -32,23 +32,23 @@ class chatGPT(commands.Cog):
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def get_completion(self, user, model, tokenLimit, prompt):
+  async def get_completion(self, user, model, maxTokens, prompt):
     messages = [{"role": user, "content": prompt}]
     chatGPTKey = await self.bot.get_shared_api_tokens("openai")
     client = OpenAI(api_key=chatGPTKey.get("api_key"))
     response = client.chat.completions.create(
     model=model,
     messages=messages,
-    max_tokens=tokenLimit,
+    max_tokens=maxTokens,
     temperature=0.5
     )
     return response.choices[0].message.content
 
-  async def send_message(self, user_id, message, model, tokenLimit) -> None:
+  async def send_message(self, user_id, message, model, maxTokens) -> None:
     if user_id not in self.user_threads:
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
-    response = await self.get_completion(user_id, model, tokenLimit, message)
+    response = await self.get_completion(user_id, model, maxTokens, message)
     self.user_threads[user_id] = response["choices"][0]["text"]
     return self.user_threads[user_id]
 
@@ -58,13 +58,13 @@ class chatGPT(commands.Cog):
     async with ctx.typing():
         try:
             model = await self.config.model()
-            tokenLimit = await self.config.tokenLimit()
+            maxTokens = await self.config.maxTokens()
             self.log.debug("Sending query: `" + query + "` to chatGPT. With model: " + model)
             chatGPTKey = await self.bot.get_shared_api_tokens("openai")
             if chatGPTKey.get("api_key") is None:
                 self.log.error("No api key set.")
                 return await ctx.send("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
-            response: str = await self.send_message(ctx.author.id, query, model, tokenLimit)
+            response: str = await self.send_message(ctx.author.id, query, model, maxTokens)
             if len(response) > 0 and len(response) < 2000:
                 self.log.debug("Response is under 2000 characters and is: `" + response + "`.")
                 await ctx.send(response)
@@ -252,7 +252,8 @@ class chatGPT(commands.Cog):
 
   @checks.is_owner()
   @chatgpt.command(name="tokenlimit", description="Sets token limit for each chatGPT interaction.")
-  async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
+  @app_commands.describe(maxTokens="Token limit for each chatGPT interaction.")
+  async def tokenlimit(self, ctx: commands.Context, maxTokens: int):
     """
     Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
     
@@ -269,8 +270,8 @@ class chatGPT(commands.Cog):
         "gpt-4-0125-preview": (0, 128000)
     }
 
-    if model in model_limits and model_limits[model][0] < tokenLimit <= model_limits[model][1]:
-        await self.config.tokenlimit.set(tokenLimit)
-        await ctx.send("Token limit is now set to " + str(tokenLimit), ephemeral=True)
+    if model in model_limits and model_limits[model][0] < maxTokens <= model_limits[model][1]:
+        await self.config.tokenlimit.set(maxTokens)
+        await ctx.send("Token limit is now set to " + str(maxTokens), ephemeral=True)
     else:
         await ctx.send("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1]) + ".", ephemeral=True)
