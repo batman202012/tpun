@@ -32,13 +32,15 @@ class chatGPT(commands.Cog):
     self.config.register_global(**defaultGlobalConfig)
     self.config.register_guild(**defaultGuildConfig)
 
-  async def get_completion(self, client_instance, model, tokenLimit, prompt):
+  async def get_completion(self, model, tokenLimit, prompt):
     messages = [{"role": "user", "content": prompt}]
-    response = client_instance.chat.completions.create(
+    chatGPTKey = await self.bot.get_shared_api_tokens("openai")
+    client = OpenAI(api_key=chatGPTKey.get("api_key"))
+    response = client.chat.completions(
     model=model,
     messages=messages,
     max_tokens=tokenLimit,
-    temperature=0.5,
+    temperature=0.5
     )
     return response.choices[0].message.content
 
@@ -46,7 +48,7 @@ class chatGPT(commands.Cog):
     if user_id not in self.user_threads:
       self.user_threads[user_id] = ""
     self.prompt = self.user_threads[user_id]
-    response = await self.get_completion(client, model, tokenLimit, message)
+    response = await self.get_completion(model, tokenLimit, message)
     self.user_threads[user_id] = response["choices"][0]["text"]
     return self.user_threads[user_id]
 
@@ -62,8 +64,7 @@ class chatGPT(commands.Cog):
             if chatGPTKey.get("api_key") is None:
                 self.log.error("No api key set.")
                 return await ctx.send("The bot owner still needs to set the openai api key using `[p]set api openai  api_key,<api key>`. It can be created at: https://beta.openai.com/account/api-keys")
-            client = OpenAI(api_key=chatGPTKey.get("api_key"))
-            response: str = await self.send_message(client, ctx.author.id, query, model, tokenLimit)
+            response: str = await self.send_message(ctx.author.id, query, model, tokenLimit)
             if len(response) > 0 and len(response) < 2000:
                 self.log.debug("Response is under 2000 characters and is: `" + response + "`.")
                 await ctx.reply(response)
