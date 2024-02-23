@@ -118,7 +118,7 @@ class chatGPT(commands.Cog):
         """
         pass
 
-  @chatgpt.command(name="chat")
+  @chatgpt.command(name="chat", description="Sends a message to chatGPT.")
   @app_commands.describe(query="Message to send chatGPT")
   async def chat(self, ctx: commands.Context, *, query: str):
     """
@@ -127,7 +127,7 @@ class chatGPT(commands.Cog):
     await self.send_chat(ctx, query)
 
   @checks.guildowner()
-  @chatgpt.command(name="channellist")
+  @chatgpt.command(name="channellist", description="List of all the channels chatGPT is whitelisted in.")
   async def channellist(self, ctx: commands.Context):
     """
     Lists the channels currently in the whitelist
@@ -143,7 +143,7 @@ class chatGPT(commands.Cog):
 
 
   @checks.guildowner()
-  @chatgpt.command(name="set")
+  @chatgpt.command(name="set", description="Change settings for chatGPT, including what channels it should auto respond in and if the bot can respond via reply regardless of channel.")
   @app_commands.describe(value="Channel ID to add or remove. For replyRespond use True or False.")
   @app_commands.choices(setting=[
         app_commands.Choice(name="channeladd", value="channeladd"),
@@ -211,7 +211,7 @@ class chatGPT(commands.Cog):
           await ctx.send("This command only accepts `true` or `false`.", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.command(name="model")
+  @chatgpt.command(name="model", description="Select the model for chatGPT to use.")
   @app_commands.describe(model="Model for chatGPT to use.")
   @app_commands.choices(model=[
         app_commands.Choice(name="gpt-3.5-turbo-0613", value="0"),
@@ -251,7 +251,7 @@ class chatGPT(commands.Cog):
         await ctx.send("That is not a valid model please use `[p]chatgpt model` to see valid models", ephemeral=True)
 
   @checks.is_owner()
-  @chatgpt.command(name="tokenlimit")
+  @chatgpt.command(name="tokenlimit", description="Sets token limit for each chatGPT interaction.")
   @app_commands.describe(tokenLimit="Token limit for each chatGPT interaction.")
   async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
     """
