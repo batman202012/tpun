@@ -207,23 +207,23 @@ class chatGPT(commands.Cog):
   @chatgpt.command(name="model")
   async def model(self, ctx: commands.Context, model: str):
     """
-    Allows the changing of model chatbot is running. Options are: 0-`text-ada-001` 1-`text-babbage-001` 2-`text-curie-001` 3-`text-davinci-002` 4-`text-davinci-003` current-`shows current model`\n\n
+    Allows the changing of model chatbot is runnig. Options are: 0-`gpt-3.5-turbo-0613` 1-`gpt-3.5-turbo-16k-0613` 2-`gpt-4-0613` 3-`gpt-4-32k-0613` 4-`gpt-4-turbo-preview` 5-`gpt-4-0125-preview` current-`shows current model`\n\n
 
-    For more information on what this means please check out: https://beta.openai.com/docs/models/gpt-3
+    For more information on what this means please check out: https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
     """
     model_map = {
         "0": "gpt-3.5-turbo-0613",
         "1": "gpt-3.5-turbo-16k-0613",
-        "2": "gpt-4-0314",
-        "3": "gpt-4-32k-0314",
-        "4": "gpt-4-0613",
-        "5": "gpt-4-32k-0613",
+        "2": "gpt-4-0613",
+        "3": "gpt-4-32k-0613",
+        "4": "gpt-4-turbo-preview",
+        "5": "gpt-4-0125-preview",
         "gpt-3.5-turbo-0613": "gpt-3.5-turbo-0613",
         "gpt-3.5-turbo-16k-0613": "gpt-3.5-turbo-16k-0613",
-        "gpt-4-0314": "gpt-4-0314",
-        "gpt-4-32k-0314": "gpt-4-32k-0314",
         "gpt-4-0613": "gpt-4-0613",
-        "gpt-4-32k-0613": "gpt-4-32k-0613"
+        "gpt-4-32k-0613": "gpt-4-32k-0613",
+        "gpt-4-turbo-preview": "gpt-4-turbo-preview",
+        "gpt-4-0125-preview": "gpt-4-0125-preview"
     }
     if model in model_map:
         await self.config.model.set(model_map[model])
@@ -238,22 +238,23 @@ class chatGPT(commands.Cog):
   @chatgpt.command(name="tokenlimit")
   async def tokenlimit(self, ctx: commands.Context, tokenLimit: int):
     """
-    Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Every model has a max cost of 2048 with the exception of the davinci models which have a max of 4000\n\n
+    Allows for changing the max amount of tokens used in one query, default is 1000. Token cost is counted as query + response. Check the Managing tokens article to see token limits on specific models.\n\n
     
-    For more information on tokens check out: https://beta.openai.com/docs/models/gpt-3
+    For more information on tokens check out: https://platform.openai.com/docs/guides/text-generation/managing-tokens
     For token prices also see: https://openai.com/api/pricing/
     """
     model = await self.config.model()
     model_limits = {
-        "text-ada-001": (0, 2048),
-        "text-babbage-001": (0, 2048),
-        "text-curie-001": (0, 2048),
-        "text-davinci-002": (0, 4000),
-        "text-davinci-003": (0, 4000)
+        "gpt-3.5-turbo-0613": (0, 4097),
+        "gpt-3.5-turbo-16k-0613": (0, 16385),
+        "gpt-4-0613": (0, 32768),
+        "gpt-4-32k-0613": (0, 32768),
+        "gpt-4-turbo-preview": (0, 128000),
+        "gpt-4-0125-preview": (0, 128000)
     }
 
     if model in model_limits and model_limits[model][0] < tokenLimit <= model_limits[model][1]:
         await self.config.tokenlimit.set(tokenLimit)
         await ctx.reply("Token limit is now set to " + str(tokenLimit))
     else:
-        await ctx.reply("That is not a valid token amount.")
+        await ctx.reply("That is not a valid token amount. Limits for this model are between " + str(model_limits[model][0]) + " and " + str(model_limits[model][1] + "."))
